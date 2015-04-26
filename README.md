@@ -51,7 +51,7 @@ The provided `callback` should accept an `error` object and a JSON `array`. For 
 {
 	"status": <Number>,
 	"message": <String>,
-	"detail": <String|Error>
+	"detail": <String|Object|Error>
 }
 ```
 

@@ -2,5 +2,8 @@
 	"headers": {
 		"User-Agent": "https://github.com/kgryte/github-get",
 		"Accept": "application/vnd.github.v3+json"
+	},
+	"qs": {
+		"page": 1
 	}
 }
