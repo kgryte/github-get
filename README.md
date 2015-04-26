@@ -54,7 +54,8 @@ The `function` accepts the standard [request](https://github.com/request/request
 	};
 
 	// Every hour, fetch the list of repos...
-	get( opts, onResponse );
+	var id = get( opts, onResponse );
+	// returns the interval timer id
 
 	function onResponse( error, body ) {
 		if ( error ) {
