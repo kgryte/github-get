@@ -18,6 +18,9 @@
     "coveralls": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --dir ./reports/coveralls/coverage --report lcovonly -- -R spec && cat ./reports/coveralls/coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./reports/coveralls"
   },
   "main": "./lib",
+  "bin": {
+    "github-get": "./bin/cli"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/kgryte/github-get.git"
