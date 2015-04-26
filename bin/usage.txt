@@ -1,0 +1,12 @@
+
+Usage: github-get [options] <uri>
+
+Options:
+
+  -h,    --help                Print this message.
+  -V,    --version             Print the package version.
+         --uri [uri]           Github URI.
+         --token [token]       Github personal access token.
+         --accept [media_type] Github media type.
+         --all                 Fetch all pages.
+

@@ -1,8 +1,8 @@
-@kgryte/github-get
+Github Get
 ===
 [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url] [![Dependencies][dependencies-image]][dependencies-url]
 
-> Retrieves resources from a Github API endpoint.
+> Retrieves resources from a [Github API](https://developer.github.com/v3/) endpoint.
 
 
 ## Installation
@@ -17,18 +17,72 @@ For use in the browser, use [browserify](https://github.com/substack/node-browse
 ## Usage
 
 ``` javascript
-var foo = require( '@kgryte/github-get' );
+var get = require( '@kgryte/github-get' );
 ```
 
-#### foo()
+#### get( opts, clbk )
 
-What does this function do?
+Retrieves resources from a [Github API](https://developer.github.com/v3/) endpoint.
+
+``` javascript
+var opts = {
+	'uri': 'https://api.github.com/user/repos'	
+};
+
+get( opts, onResponse );
+
+function onResponse( error, json ) {
+	if ( error ) {
+		console.error( error );
+		return;
+	}
+	console.log( json );
+}
+```
+
+The `function` accepts the standard [request](https://github.com/request/request) options. Additional options are as follows:
+
+-	__all__: `boolean` indicating if all paginated results should be returned from the endpoint. By default, Github paginates results. Setting this option to `true` instructs the `function` to continue making requests until __all__ pages have been returned. Default: `false`.
+
+The provided `callback` should accept an `error` object and a JSON `array`. For a successful request, `error` is `null`; otherwise, `error` is structured as follows:
+
+``` javascript
+{
+	"status": <Number>,
+	"message": <String>,
+	"detail": <String|Error>
+}
+```
 
 
 ## Examples
 
 ``` javascript
-var foo = require( '@kgryte/github-get' );
+var get = require( '@kgryte/github-get' );
+
+var opts = {
+	'uri': 'https://api.github.com/user/repos',
+	'headers': {
+		'User-Agent': 'my-unique-agent',
+		'Accept': 'application/vnd.github.moondragon+json',
+		'Authorization': 'token tkjorjk34ek3nj4!'
+	},
+	'qs': {
+		'page': 1,
+		'per_page': 100
+	},
+	'all': true
+};
+
+get( opts, onResponse );
+
+function onResponse( error, body ) {
+	if ( error ) {
+		console.error( error );
+		return;
+	}
+	console.log( body );
+}
 ```
 
 To run the example code from the top-level application directory,
@@ -37,7 +91,64 @@ To run the example code from the top-level application directory,
 $ node ./examples/index.js
 ```
 
+__Note__: in order to run the example, you will need to obtain a personal access [token](https://github.com/settings/tokens/new) and modify the `Authorization` header accordingly.
 
+
+
+---
+## CLI
+
+### Installation
+
+To use the module as a general utility, install the module globally
+
+``` bash
+$ npm install -g @kgryte/github-get
+```
+
+
+### Usage
+
+``` bash
+Usage: github-get [options] <uri>
+
+Options:
+
+  -h,    --help                Print this message.
+  -V,    --version             Print the package version.
+         --uri [uri]           Github URI.
+         --token [token]       Github personal access token.
+         --accept [media_type] Github media type.
+         --all                 Fetch all pages.
+```
+
+### Notes
+
+*	In addition to the command-line `token` option, the token may also be set with a `GITHUB_TOKEN` environment variable. The command-line option __always__ takes precedence.
+
+
+### Examples
+
+``` bash
+$ github-get --token <token> --accept 'application/vnd.github.moondragon+json' --all 'https://api.github.com/user/repos'
+
+$ GITHUB_TOKEN=<token> github-get --accept 'application/vnd.github.moondragon+json' --all 'https://api.github.com/user/repos'
+```
+
+For local installations, modify the command to point to the local installation directory; e.g., 
+
+``` bash
+$ ./node_modules/.bin/github-get --token <token> 'https://api.github.com/user/repos'
+```
+
+Or, if you have cloned this repository and run `npm install`, modify the command to point to the executable; e.g., 
+
+``` bash
+$ node ./bin/cli --token <token> 'https://api.github.com/user/repos'
+```
+
+
+---
 ## Tests
 
 ### Unit

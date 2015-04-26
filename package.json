@@ -26,7 +26,15 @@
   "bugs": {
     "url": "https://github.com/kgryte/github-get/issues"
   },
-  "dependencies": {},
+  "dependencies": {
+    "minimist": "^1.1.1",
+    "parse-link-header": "^0.2.0",
+    "request": "^2.55.0",
+    "utils-merge2": "^1.0.0",
+    "validate.io-boolean-primitive": "^1.0.0",
+    "validate.io-function": "^1.0.2",
+    "validate.io-object": "^1.0.3"
+  },
   "devDependencies": {
     "chai": "2.x.x",
     "mocha": "2.x.x",

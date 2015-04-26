@@ -1,0 +1,20 @@
+{
+	"string": [
+		"uri",
+		"token",
+		"accept"
+	],
+	"boolean": [
+		"help",
+		"version",
+		"all"
+	],
+	"alias": {
+		"help": [
+			"h"
+		],
+		"version": [
+			"V"
+		]
+	}
+}
