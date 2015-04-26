@@ -1,6 +1,6 @@
 {
   "name": "@kgryte/github-get",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Retrieves resources from a Github API endpoint.",
   "author": {
     "name": "Athan Reines",
