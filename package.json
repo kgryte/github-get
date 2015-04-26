@@ -25,7 +25,20 @@
     "type": "git",
     "url": "git://github.com/kgryte/github-get.git"
   },
-  "keywords": [],
+  "keywords": [
+    "git",
+    "github",
+    "get",
+    "request",
+    "api",
+    "query",
+    "poll",
+    "repos",
+    "repositories",
+    "cli",
+    "util",
+    "utility"
+  ],
   "bugs": {
     "url": "https://github.com/kgryte/github-get/issues"
   },
@@ -36,7 +49,8 @@
     "utils-merge2": "^1.0.0",
     "validate.io-boolean-primitive": "^1.0.0",
     "validate.io-function": "^1.0.2",
-    "validate.io-object": "^1.0.3"
+    "validate.io-object": "^1.0.3",
+    "validate.io-positive": "^1.0.0"
   },
   "devDependencies": {
     "chai": "2.x.x",

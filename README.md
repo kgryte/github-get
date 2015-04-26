@@ -44,6 +44,27 @@ function onResponse( error, body ) {
 The `function` accepts the standard [request](https://github.com/request/request) options. Additional options are as follows:
 
 -	__all__: `boolean` indicating if all paginated results should be returned from the endpoint. By default, Github [paginates](https://developer.github.com/guides/traversing-with-pagination/) results. Setting this option to `true` instructs the `function` to continue making requests until __all__ pages have been returned. Default: `false`.
+-	__interval__: positive number defining a poll [interval](https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setInterval) for repeatedly querying the Github API. The interval should be in units of `milliseconds`.
+
+	``` javascript
+	var opts = {
+		'uri': 'https://api.github.com/user/repos',
+		'all': true,
+		'interval': 60*60*1000 // 1hr
+	};
+
+	// Every hour, fetch the list of repos...
+	get( opts, onResponse );
+
+	function onResponse( error, body ) {
+		if ( error ) {
+			console.error( error );
+			return;
+		}
+		console.log( body );
+		// returns [{...},{...},...]
+	}
+	``` 
 
 The provided `callback` should accept an `error` object and a JSON `array`. For a successful request, `error` is `null`; otherwise, `error` is structured as follows:
 
@@ -122,6 +143,7 @@ Options:
          --token [token]       Github personal access token.
          --accept [media_type] Github media type.
          --all                 Fetch all pages.
+         --interval [ms]       Poll interval (in milliseconds).
 ```
 
 ### Notes

@@ -94,6 +94,30 @@ describe( '@kgryte/github-get', function tests() {
 		}
 	});
 
+	it( 'should throw an error if provided an `interval` option which is not a positive number', function test() {
+		var values = [
+			'5',
+			-5,
+			0,
+			{},
+			null,
+			undefined,
+			NaN,
+			[],
+			function(){}
+		];
+		for ( var i = 0; i < values.length; i++ ) {
+			expect( badValue( values[i] ) ).to.throw( TypeError );
+		}
+		function badValue( value ) {
+			return function() {
+				get({
+					'interval':value
+				}, function(){} );
+			};
+		}
+	});
+
 	it( 'should return an error if unable to query the Github API', function test( done ) {
 		get({
 			'uri': 'unknown_UrL_Beep_booP'
@@ -258,6 +282,40 @@ describe( '@kgryte/github-get', function tests() {
 				assert.isArray( body );
 			}
 			done();
+		}
+	});
+
+	it( 'should poll', function test( done ) {
+		var count = 0,
+			get,
+			id;
+
+		get = proxyquire( mpath, {
+			'request': request
+		});
+
+		id = get({
+			'uri': 'https://api.github.com/user/repos',
+			'all': false,
+			'interval': 100 // Don't do this in production! You'll max out your rate-limit!
+		}, clbk );
+
+		function request( opts, clbk ) {
+			clbk( null, {
+				'statusCode':200
+			}, '[{"beep":"boop"}]' );
+		}
+
+		function clbk( error, body ) {
+			if ( error ) {
+				assert.ok( false );
+			} else {
+				assert.isArray( body );
+			}
+			if ( ++count === 2 ) {
+				clearInterval( id );
+				done();
+			}
 		}
 	});
 

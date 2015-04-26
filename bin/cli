@@ -95,6 +95,10 @@ if ( args.accept ) {
 // Option to query for all paginated results:
 opts.all = args.all;
 
-// Make the request:
-require( './../lib' )( opts, onResponse );
+// Option for polling the Github API...
+if ( args.interval ) {
+	opts.interval = parseFloat( args.interval );
+}
 
+// Make the request(s):
+require( './../lib' )( opts, onResponse );
