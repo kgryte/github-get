@@ -31,18 +31,19 @@ var opts = {
 
 get( opts, onResponse );
 
-function onResponse( error, json ) {
+function onResponse( error, body ) {
 	if ( error ) {
 		console.error( error );
 		return;
 	}
-	console.log( json );
+	console.log( body );
+	// returns [{...},{...},...]
 }
 ```
 
 The `function` accepts the standard [request](https://github.com/request/request) options. Additional options are as follows:
 
--	__all__: `boolean` indicating if all paginated results should be returned from the endpoint. By default, Github paginates results. Setting this option to `true` instructs the `function` to continue making requests until __all__ pages have been returned. Default: `false`.
+-	__all__: `boolean` indicating if all paginated results should be returned from the endpoint. By default, Github [paginates](https://developer.github.com/guides/traversing-with-pagination/) results. Setting this option to `true` instructs the `function` to continue making requests until __all__ pages have been returned. Default: `false`.
 
 The provided `callback` should accept an `error` object and a JSON `array`. For a successful request, `error` is `null`; otherwise, `error` is structured as follows:
 
@@ -82,6 +83,7 @@ function onResponse( error, body ) {
 		return;
 	}
 	console.log( body );
+	// returns [{...},{...},...]
 }
 ```
 
@@ -129,10 +131,18 @@ Options:
 
 ### Examples
 
+Setting the personal access [token](https://github.com/settings/tokens/new) using the command-line option:
+
 ``` bash
 $ github-get --token <token> --accept 'application/vnd.github.moondragon+json' --all 'https://api.github.com/user/repos'
+# => '[{..},{..},...]'
+```
 
+Setting the personal access [token](https://github.com/settings/tokens/new) using an environment variable:
+
+``` bash
 $ GITHUB_TOKEN=<token> github-get --accept 'application/vnd.github.moondragon+json' --all 'https://api.github.com/user/repos'
+# => '[{...},{...},...]'
 ```
 
 For local installations, modify the command to point to the local installation directory; e.g., 
