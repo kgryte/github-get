@@ -101,4 +101,24 @@ if ( args.interval ) {
 }
 
 // Make the request(s):
-require( './../lib' )( opts, onResponse );
+var id = require( './../lib' )( opts, onResponse );
+
+if ( id ) {
+	process.on( 'SIGTERM', sigterm );
+	process.on( 'SIGINT', sigint );
+	process.on( 'SIGHUP', sighup );
+	process.on( 'exit', cleanup );
+}
+
+function cleanup() {
+	clearInterval( id );
+}
+function sigterm() {
+	process.exit( 128+15 );
+}
+function sigint() {
+	process.exit( 128+2 );
+}
+function sighup() {
+	process.exit( 128+1 );
+}
