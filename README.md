@@ -149,6 +149,7 @@ Options:
 ### Notes
 
 *	In addition to the command-line `token` option, the token may also be set with a `GITHUB_TOKEN` environment variable. The command-line option __always__ takes precedence.
+*	If the process receives a terminating [signal event](https://nodejs.org/api/process.html#process_signal_events) (e.g., `CTRL+C`) while polling a Github API endpoint, the process will stop polling and __wait__ 2 seconds to allow any pending requests to complete before exiting.
 
 
 ### Examples

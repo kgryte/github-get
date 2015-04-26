@@ -10,6 +10,107 @@ var fs = require( 'fs' ),
 	opts = require( './opts.json' );
 
 
+// VARIABLES //
+
+var SIGTERM = 128 + 15,
+	SIGINT = 128 + 2,
+	SIGHUP = 128 + 1,
+	WAIT = 2000, // 2 seconds
+	ID;
+
+
+// FUNCTIONS //
+
+/**
+* FUNCTION: onClose()
+*	Callback invoked upon writing a file to `stdout`.
+*
+* @private
+*/
+function onClose() {
+	process.exit( 1 );
+}
+
+/**
+* FUNCTION: onResponse( error, json )
+*	Callback invoked upon receiving data from a Github API endpoint. Writes the data to `stdout`.
+*
+* @private
+* @param {Object|Null} error - error object
+* @param {Object[]} json - response data
+*/
+function onResponse( error, json ) {
+	if ( error ) {
+		console.error( error );
+		return;
+	}
+	process.stdout.write( JSON.stringify( json ) );
+}
+
+/**
+* FUNCTION: sigterm()
+*	Callback invoked upon the process receiving a SIGTERM signal.
+*
+* @private
+*/
+function sigterm() {
+	cleanup();
+	setTimeout( onTimeout( SIGTERM ), WAIT );
+}
+
+/**
+* FUNCTION: sigint()
+*	Callback invoked upon the process receiving a SIGINT signal.
+*
+* @private
+*/
+function sigint() {
+	cleanup();
+	setTimeout( onTimeout( SIGINT ), WAIT );
+}
+
+/**
+* FUNCTION: sighup()
+*	Callback invoked upon the process receiving a SIGHUP signal.
+*
+* @private
+*/
+function sighup() {
+	cleanup();
+	setTimeout( onTimeout( SIGHUP ), WAIT );
+}
+
+/**
+* FUNCTION: cleanup()
+*	Performs any cleanup tasks before the process exits.
+*
+* @private
+*/
+function cleanup() {
+	clearInterval( ID );
+}
+
+/**
+* FUNCTION: onTimeout( code )
+*	Encloses an exit code and returns a timeout callback.
+*
+* @private
+* @param {Number} code - exit code
+* @returns {Function} timeout callback
+*/
+function onTimeout( code ) {
+	/**
+	* FUNCTION: onTimeout()
+	*	Callback invoked upon a timeout event. Exits the process.
+	*
+	* @private
+	*/
+	return function onTimeout() {
+		process.exit( code );
+	};
+}
+
+
 // INIT //
 
 process.stdout.on( 'error', process.exit );
@@ -21,10 +122,6 @@ var args = parseArgs( process.argv.slice( 2 ), opts );
 
 
 // HELP //
-
-function onClose() {
-	process.exit( 1 );
-}
 
 if ( args.help ) {
 	fs.createReadStream( path.join( __dirname, 'usage.txt' ) )
@@ -44,13 +141,6 @@ if ( args.version ) {
 
 // REQUEST //
 
-function onResponse( error, json ) {
-	if ( error ) {
-		console.error( error );
-		return;
-	}
-	process.stdout.write( JSON.stringify( json ) );
-}
 var token,
 	keys,
 	uri,
@@ -61,7 +151,7 @@ var token,
 
 opts = require( './defaults.json' );
 
-// Parse the URI and extract any query string parameters...
+// [0] Parse the URI and extract any query string parameters...
 if ( args._.length ) {
 	uri = args._[ 0 ];
 } else {
@@ -78,7 +168,7 @@ for ( i = 0; i < len; i++ ) {
 }
 opts.uri = uri;
 
-// Set the authorization token...
+// [1] Set the authorization token...
 if ( args.token ) {
 	token = args.token;
 }
@@ -88,37 +178,23 @@ else if ( process.env.GITHUB_TOKEN ) {
 if ( token ) {
 	opts.headers.Authorization = 'token ' + token;
 }
-// If a special media type has been provided, set the `Accept` header...
+// [2] If a special media type has been provided, set the `Accept` header...
 if ( args.accept ) {
 	opts.headers.Accept = args.accept;
 }
-// Option to query for all paginated results:
+// [3] Option to query for all paginated results:
 opts.all = args.all;
 
-// Option for polling the Github API...
+// [4] Option for polling the Github API...
 if ( args.interval ) {
 	opts.interval = parseFloat( args.interval );
 }
+// [5] Make the request(s):
+ID = require( './../lib' )( opts, onResponse );
 
-// Make the request(s):
-var id = require( './../lib' )( opts, onResponse );
-
-if ( id ) {
+// [6] Only add signal listeners if we are polling a Github API endpoint...
+if ( ID ) {
 	process.on( 'SIGTERM', sigterm );
 	process.on( 'SIGINT', sigint );
 	process.on( 'SIGHUP', sighup );
-	process.on( 'exit', cleanup );
-}
-
-function cleanup() {
-	clearInterval( id );
-}
-function sigterm() {
-	process.exit( 128+15 );
-}
-function sigint() {
-	process.exit( 128+2 );
-}
-function sighup() {
-	process.exit( 128+1 );
 }
