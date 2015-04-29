@@ -63,6 +63,7 @@ The `constructor` accepts the standard [request](https://github.com/request/requ
 
 
 
+===
 ### Attributes
 
 A `Query` instance has the following attributes...
@@ -99,6 +100,7 @@ if ( query.pending ) {
 ```
 
 
+===
 ### Methods
 
 A `Query` instance has the following methods...
@@ -135,6 +137,7 @@ __Note__: pending requests are still allowed to complete.
 
 
 
+===
 ### Events
 
 A `Query` instance emits the following events...
@@ -269,7 +272,7 @@ __Note__: pending requests may result in `data` and other associated events bein
 
 
 
-
+---
 ## Examples
 
 ``` javascript
