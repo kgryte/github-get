@@ -46,6 +46,7 @@
     "minimist": "^1.1.1",
     "parse-link-header": "^0.2.0",
     "request": "^2.55.0",
+    "utils-copy": "^1.0.0",
     "utils-merge2": "^1.0.0",
     "validate.io-boolean-primitive": "^1.0.0",
     "validate.io-function": "^1.0.2",
