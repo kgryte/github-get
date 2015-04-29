@@ -23,65 +23,51 @@ var createQuery = require( '@kgryte/github-get' );
 
 #### createQuery( opts )
 
-
-
-
-#### get( opts, clbk )
-
-Retrieves resources from a [Github API](https://developer.github.com/v3/) endpoint.
+Creates a new `Query` instance for retrieving resources from a [Github API](https://developer.github.com/v3/) endpoint.
 
 ``` javascript
 var opts = {
 	'uri': 'https://api.github.com/user/repos'	
 };
 
-get( opts, onResponse );
+var query = createQuery( opts );
+query.on( 'data', onData );
 
-function onResponse( error, body ) {
-	if ( error ) {
-		console.error( error );
-		return;
-	}
-	console.log( body );
+function onData( evt ) {
+	console.log( evt.data );
 	// returns [{...},{...},...]
 }
 ```
 
-The `function` accepts the standard [request](https://github.com/request/request) options. Additional options are as follows:
+The `constructor` accepts the standard [request](https://github.com/request/request) options. Additional options are as follows:
 
--	__all__: `boolean` indicating if all paginated results should be returned from the endpoint. By default, Github [paginates](https://developer.github.com/guides/traversing-with-pagination/) results. Setting this option to `true` instructs the `function` to continue making requests until __all__ pages have been returned. Default: `false`.
--	__interval__: positive number defining a poll [interval](https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setInterval) for repeatedly querying the Github API. The interval should be in units of `milliseconds`.
+-	__all__: `boolean` indicating if all paginated results should be returned from the endpoint. By default, Github [paginates](https://developer.github.com/guides/traversing-with-pagination/) results. Setting this option to `true` instructs the `Query` instance to continue making requests until __all__ pages have been returned. Default: `false`.
+-	__interval__: positive number defining a poll [interval](https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setInterval) for repeatedly querying the Github API. The interval should be in units of `milliseconds`. If an `interval` is __not__ provided, only a single query is made to the Github API. Default: `3600000` (1hr).
 
 	``` javascript
 	var opts = {
 		'uri': 'https://api.github.com/user/repos',
 		'all': true,
-		'interval': 60*60*1000 // 1hr
+		'interval': 600000 // 10 minutes
 	};
 
-	// Every hour, fetch the list of repos...
-	var id = get( opts, onResponse );
-	// returns the interval timer id
+	// Every 10 minutes, fetch the list of repos...
+	var query = createQuery( opts );
+	query.on( 'data', onData );
 
-	function onResponse( error, body ) {
-		if ( error ) {
-			console.error( error );
-			return;
-		}
-		console.log( body );
+	function onData( evt ) {
+		console.log( evt.data );
 		// returns [{...},{...},...]
 	}
 	``` 
 
-The provided `callback` should accept an `error` object and a JSON `array`. For a successful request, `error` is `null`; otherwise, `error` is structured as follows:
+The `Query` instance has the following attributes and methods...
 
-``` javascript
-{
-	"status": <Number>,
-	"message": <String>,
-	"detail": <String|Object|Error>
-}
-```
+
+##### query.all
+
+
+
 
 
 ## Examples
