@@ -61,10 +61,210 @@ The `constructor` accepts the standard [request](https://github.com/request/requ
 	}
 	``` 
 
-The `Query` instance has the following attributes and methods...
 
 
-##### query.all
+### Attributes
+
+The `Query` instance has the following attributes...
+
+
+#### query.all
+
+Attribute indicating if all paginated results should be returned from the endpoint. By default, Github [paginates](https://developer.github.com/guides/traversing-with-pagination/) results. Setting this option to `true` instructs the `Query` instance to continue making requests until __all__ pages have been returned. Default: `false`.
+
+``` javascript
+query.all = true;
+```
+
+
+#### query.interval
+
+Attribute defining a poll [interval](https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setInterval) for repeatedly querying the Github API. The interval should be in units of `milliseconds`.D efault: `3600000` (1hr).
+
+``` javascript
+query.interval = 60000; // 1 minute
+```
+
+Once set, the `Query` instance immediately begins polling the Github API according to the specified `interval`.
+
+
+#### query.pending
+
+Read-only attribute providing the number of pending API requests.
+
+``` javascript
+if ( query.pending ) {
+	console.log( '%d requests still pending...', query.pending );
+}
+```
+
+
+### Methods
+
+The `Query` instance has the following methods...
+
+#### query.query()
+
+Instructs the `Query` instance to perform a single query of a Github API endpoint.
+
+``` javascript
+query.query();
+```
+
+This method is useful when manually polling an endpoint (i.e., no fixed `interval`).
+
+
+#### query.start()
+
+Instructs the `Query` instance to start polling a Github API endpoint. 
+
+``` javascript
+query.start();
+```
+
+
+#### query.stop()
+
+Instructs the `Query` instance to stop polling a Github API endpoint.
+
+``` javascript
+query.stop();
+```
+
+__Note__: pending requests are still allowed to complete. 
+
+
+
+### Events
+
+A `Query` instance emits the following events...
+
+
+#### 'error'
+
+The `Query` instance emits an `error` event whenever a non-fatal error occurs; e.g., an invalid value is assigned to an attribute or HTTP response errors. To capture `errors`,
+
+``` javascript
+function onError( evt ) {
+	console.error( evt );
+}
+
+query.on( 'error', onError );
+```
+
+#### 'init'
+
+The `Query` instance emits an `init` event prior to querying a Github endpoint. Each query is assigned a unique identifier, which is emitted during this event.
+
+``` javascript
+function onInit( evt ) {
+	console.log( evt.qid );
+}
+
+query.on( 'init', onInit );
+```
+
+Listening on this event could be useful for query monitoring.
+
+
+#### 'request'
+
+The `Query` instance emits a `request` event when making an HTTP request to a Github endpoint. If `query.all === true`, a single query could be comprised of multiple requests. Each request will result in a `request` event.
+
+``` javascript
+function onRequest( evt ) {
+	console.log( evt );
+}
+
+query.on( 'request', onRequest );
+```
+
+For paginated queries, each request maps to a particular page. The page identifier is specified by a request id `rid`.
+
+
+#### 'page'
+
+The `Query` instance emits a `page` event upon receiving a paginated response.
+
+``` javascript
+function onPage( evt ) {
+	console.log( 'Request id: %d.', evt.rid );
+	console.log( 'Page number: %d.', evt.page );
+	console.log( 'Page %d of %d.', evt.count, evt.total );
+	console.log( evt.data );
+}
+
+query.on( 'page', onPage );
+```
+
+
+#### 'data'
+
+The `Query` instance emits a `data` event after processing all query data. For queries involving pagination, all data is concatenated into a single `array`.
+
+``` javascript
+function onData( evt ) {
+	console.log( evt.data );
+}
+
+query.on( 'data', onData );
+```
+
+
+
+#### 'end'
+
+The `Query` instance emits an `end` event once a query is finished processing all requests. Of interest, the emitted event includes [rate-limit](https://developer.github.com/v3/rate_limit/) information, which could be useful for throttling queries.
+
+``` javascript
+function onEnd( evt ) {
+	console.log( 'Rate-limit info...' );
+	console.dir( evt.ratelimit );
+}
+
+query.on( 'end', onEnd );
+```
+
+
+#### 'pending'
+
+The `Query` instance emits a `pending` event anytime the number of pending requests changes. Listening to this event could be useful when wanting to gracefully end a `Query` instance (e.g., allow all pending requests to finish before killing a process).
+
+``` javascript
+function onPending( count ) {
+	console.log( '%d pending requests...', count );
+}
+
+query.on( 'pending', onPending );
+```
+
+
+#### 'start'
+
+The `Query` instance emits a `start` event immediately before creating a new interval timer and starting to poll a Github API endpoint.
+
+``` javascript
+function onStart() {
+	console.log( 'Polling has begun...' );
+}
+
+query.on( 'start', onStart );
+```
+
+
+#### 'stop'
+
+The `Query` instance emits a `stop` event when it stops polling a Github API endpoint.
+
+``` javascript
+function onStop() {
+	console.log( 'Polling has ended...' );
+}
+
+query.on( 'stop', onStop );
+```
+
+__Note__: pending requests may result in `data` and other associated events being emitted __after__ a `stop` event occurs.
 
 
 
@@ -107,8 +307,9 @@ function onData( evt ) {
 	console.log( evt.data );
 }
 
-function onEnd( qid ) {
-	console.log( 'Query %d ended...', qid );
+function onEnd( evt ) {
+	console.log( 'Query %d ended...', evt.qid );
+	console.dir( evt.ratelimit );
 }
 
 var query = createQuery( opts );

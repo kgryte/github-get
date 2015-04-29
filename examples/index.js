@@ -61,13 +61,14 @@ function onData( evt ) {
 }
 
 /**
-* FUNCTION: onEnd( qid )
+* FUNCTION: onEnd( evt )
 *	Event listener invoked when a query ends.
 *
-* @param {Number} qid - query id
+* @param {Object} evt - end event object
 */
-function onEnd( qid ) {
-	console.log( 'Query %d ended...', qid );
+function onEnd( evt ) {
+	console.log( 'Query %d ended...', evt.qid );
+	console.dir( evt.ratelimit );
 }
 
 var query = createQuery( opts );
