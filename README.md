@@ -70,7 +70,7 @@ A `Query` instance has the following attributes...
 
 #### query.all
 
-Attribute indicating if all paginated results should be returned from the endpoint. By default, Github [paginates](https://developer.github.com/guides/traversing-with-pagination/) results. Setting this option to `true` instructs the `Query` instance to continue making requests until __all__ pages have been returned. Default: `false`.
+Attribute indicating if all paginated results should be returned from the endpoint. By default, Github [paginates](https://developer.github.com/guides/traversing-with-pagination/) results. Setting this option to `true` instructs a `Query` instance to continue making requests until __all__ pages have been returned. Default: `false`.
 
 ``` javascript
 query.all = true;
@@ -79,7 +79,7 @@ query.all = true;
 
 #### query.interval
 
-Attribute defining a poll [interval](https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setInterval) for repeatedly querying the Github API. The interval should be in units of `milliseconds`.D efault: `3600000` (1hr).
+Attribute defining a poll [interval](https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setInterval) for repeatedly querying the Github API. An `interval` should be in units of `milliseconds`. Default: `3600000` (1hr).
 
 ``` javascript
 query.interval = 60000; // 1 minute
@@ -142,7 +142,7 @@ A `Query` instance emits the following events...
 
 #### 'error'
 
-A `Query` instance emits an `error` event whenever a non-fatal error occurs; e.g., an invalid value is assigned to an attribute or HTTP response errors. To capture `errors`,
+A `Query` instance emits an `error` event whenever a non-fatal error occurs; e.g., an invalid value is assigned to an attribute, HTTP response errors, etc. To capture `errors`,
 
 ``` javascript
 function onError( evt ) {
@@ -169,7 +169,7 @@ Listening on this event could be useful for query monitoring.
 
 #### 'request'
 
-A `Query` instance emits a `request` event when making an HTTP request to a Github endpoint. If `query.all === true`, a single query could be comprised of multiple requests. Each request will result in a `request` event.
+A `Query` instance emits a `request` event when making an HTTP request to a Github endpoint. If `query.all` is `true`, a single query could be comprised of multiple requests. Each request will result in a `request` event.
 
 ``` javascript
 function onRequest( evt ) {
@@ -214,11 +214,11 @@ query.on( 'data', onData );
 
 #### 'end'
 
-A `Query` instance emits an `end` event once a query is finished processing all requests. Of interest, the emitted event includes [rate-limit](https://developer.github.com/v3/rate_limit/) information, which could be useful for throttling queries.
+A `Query` instance emits an `end` event once a query is finished processing all requests. Of interest, the emitted event includes [rate limit](https://developer.github.com/v3/rate_limit/) information, which could be useful for throttling queries.
 
 ``` javascript
 function onEnd( evt ) {
-	console.log( 'Rate-limit info...' );
+	console.log( 'Rate limit info...' );
 	console.dir( evt.ratelimit );
 }
 
@@ -365,7 +365,7 @@ Options:
 
 ### Notes
 
-*	In addition to the command-line `token` option, the token may also be set with a `GITHUB_TOKEN` environment variable. The command-line option __always__ takes precedence.
+*	In addition to the command-line `token` option, the token may also be specified by a `GITHUB_TOKEN` environment variable. The command-line option __always__ takes precedence.
 *	If the process receives a terminating [signal event](https://nodejs.org/api/process.html#process_signal_events) (e.g., `CTRL+C`) while polling a Github API endpoint, the process will stop polling and wait for any pending requests to complete before exiting.
 
 

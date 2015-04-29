@@ -297,7 +297,7 @@ describe( '@kgryte/github-get', function tests() {
 		id = get({
 			'uri': 'https://api.github.com/user/repos',
 			'all': false,
-			'interval': 100 // Don't do this in production! You'll max out your rate-limit!
+			'interval': 100 // Don't do this in production! You'll max out your rate limit!
 		}, clbk );
 
 		function request( opts, clbk ) {
