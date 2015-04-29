@@ -17,8 +17,14 @@ For use in the browser, use [browserify](https://github.com/substack/node-browse
 ## Usage
 
 ``` javascript
-var get = require( '@kgryte/github-get' );
+var createQuery = require( '@kgryte/github-get' );
 ```
+
+
+#### createQuery( opts )
+
+
+
 
 #### get( opts, clbk )
 
@@ -81,7 +87,7 @@ The provided `callback` should accept an `error` object and a JSON `array`. For 
 ## Examples
 
 ``` javascript
-var get = require( '@kgryte/github-get' );
+var createQuery = require( '@kgryte/github-get' );
 
 var opts = {
 	'uri': 'https://api.github.com/user/repos',
@@ -94,19 +100,42 @@ var opts = {
 		'page': 1,
 		'per_page': 100
 	},
-	'all': true
+	'all': true,
+	'interval': 10000 // every 10 seconds
 };
 
-get( opts, onResponse );
-
-function onResponse( error, body ) {
-	if ( error ) {
-		console.error( error );
-		return;
-	}
-	console.log( body );
-	// returns [{...},{...},...]
+function onError( evt ) {
+	console.error( evt );
 }
+
+function onRequest( evt ) {
+	console.log( evt );
+}
+
+function onPage( evt ) {
+	var pct = evt.count / evt.total * 100;
+	console.log( 'Query %d progress: %d%.' , evt.qid, Math.round( pct ) );
+}
+
+function onData( evt ) {
+	console.log( evt.data );
+}
+
+function onEnd( qid ) {
+	console.log( 'Query %d ended...', qid );
+}
+
+var query = createQuery( opts );
+query.on( 'error', onError );
+query.on( 'request', onRequest );
+query.on( 'page', onPage );
+query.on( 'data', onData );
+query.on( 'end', onEnd );
+
+// Stop polling after 60 seconds...
+setTimeout( function stop() {
+	query.stop();
+}, 60000 );
 ```
 
 To run the example code from the top-level application directory,
@@ -150,7 +179,7 @@ Options:
 ### Notes
 
 *	In addition to the command-line `token` option, the token may also be set with a `GITHUB_TOKEN` environment variable. The command-line option __always__ takes precedence.
-*	If the process receives a terminating [signal event](https://nodejs.org/api/process.html#process_signal_events) (e.g., `CTRL+C`) while polling a Github API endpoint, the process will stop polling and __wait__ 2 seconds to allow any pending requests to complete before exiting.
+*	If the process receives a terminating [signal event](https://nodejs.org/api/process.html#process_signal_events) (e.g., `CTRL+C`) while polling a Github API endpoint, the process will stop polling and wait for any pending requests to complete before exiting.
 
 
 ### Examples

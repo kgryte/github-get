@@ -15,8 +15,7 @@ var fs = require( 'fs' ),
 var SIGTERM = 128 + 15,
 	SIGINT = 128 + 2,
 	SIGHUP = 128 + 1,
-	WAIT = 2000, // 2 seconds
-	ID;
+	query;
 
 
 // FUNCTIONS //
@@ -32,19 +31,25 @@ function onClose() {
 }
 
 /**
-* FUNCTION: onResponse( error, json )
-*	Callback invoked upon receiving data from a Github API endpoint. Writes the data to `stdout`.
+* FUNCTION: onError( evt )
+*	Event listener invoked when a query instance emits an `error`.
 *
 * @private
-* @param {Object|Null} error - error object
-* @param {Object[]} json - response data
+* @param {Object} evt - error event object
 */
-function onResponse( error, json ) {
-	if ( error ) {
-		console.error( error );
-		return;
-	}
-	process.stdout.write( JSON.stringify( json ) );
+function onError( evt ) {
+	console.error( evt );
+}
+
+/**
+* FUNCTION: onData( evt )
+*	Event listener invoked upon receiving data from a Github API endpoint. Writes the data to `stdout`.
+*
+* @private
+* @param {Object} evt - data event object
+*/
+function onData( evt ) {
+	process.stdout.write( JSON.stringify( evt.data ) );
 }
 
 /**
@@ -54,8 +59,7 @@ function onResponse( error, json ) {
 * @private
 */
 function sigterm() {
-	cleanup();
-	setTimeout( onTimeout( SIGTERM ), WAIT );
+	cleanup( onCleanup( SIGTERM ) );
 }
 
 /**
@@ -65,8 +69,7 @@ function sigterm() {
 * @private
 */
 function sigint() {
-	cleanup();
-	setTimeout( onTimeout( SIGINT ), WAIT );
+	cleanup( onCleanup( SIGINT ) );
 }
 
 /**
@@ -76,36 +79,46 @@ function sigint() {
 * @private
 */
 function sighup() {
-	cleanup();
-	setTimeout( onTimeout( SIGHUP ), WAIT );
+	cleanup( onCleanup( SIGHUP ) );
 }
 
 /**
-* FUNCTION: cleanup()
+* FUNCTION: cleanup( clbk )
 *	Performs any cleanup tasks before the process exits.
 *
 * @private
+* @param {Function} clbk - callback to invoke once cleanup tasks are finished
 */
-function cleanup() {
-	clearInterval( ID );
+function cleanup( clbk ) {
+	query.stop();
+	if ( query.pending ) {
+		query.on( 'pending', onPending );
+	} else {
+		clbk();
+	}
+	function onPending( count ) {
+		if ( count === 0 ) {
+			clbk();
+		}
+	}
 }
 
 /**
-* FUNCTION: onTimeout( code )
-*	Encloses an exit code and returns a timeout callback.
+* FUNCTION: onCleanup( code )
+*	Encloses an exit code and returns a callback.
 *
 * @private
 * @param {Number} code - exit code
-* @returns {Function} timeout callback
+* @returns {Function} callback
 */
-function onTimeout( code ) {
+function onCleanup( code ) {
 	/**
-	* FUNCTION: onTimeout()
-	*	Callback invoked upon a timeout event. Exits the process.
+	* FUNCTION: done()
+	*	Callback invoked once cleanup tasks are complete. Exits the process.
 	*
 	* @private
 	*/
-	return function onTimeout() {
+	return function done() {
 		process.exit( code );
 	};
 }
@@ -189,11 +202,15 @@ opts.all = args.all;
 if ( args.interval ) {
 	opts.interval = parseFloat( args.interval );
 }
-// [5] Make the request(s):
-ID = require( './../lib' )( opts, onResponse );
+// [5] Create a new query instance:
+query = require( './../lib' )( opts );
 
-// [6] Only add signal listeners if we are polling a Github API endpoint...
-if ( ID ) {
+// [6] Add event listeners:
+query.on( 'error', onError );
+query.on( 'data', onData );
+
+// [7] Only add signal listeners if we are polling a Github API endpoint...
+if ( opts.interval ) {
 	process.on( 'SIGTERM', sigterm );
 	process.on( 'SIGINT', sigint );
 	process.on( 'SIGHUP', sighup );

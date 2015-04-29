@@ -10,8 +10,6 @@ var opts = {
 
 		// INSERT TOKEN HERE //
 		'Authorization': 'token <your_token_goes_here>'
-
-		//
 	},
 	'qs': {
 		'page': 1,
@@ -21,31 +19,65 @@ var opts = {
 	'interval': 10000
 };
 
-var query = createQuery( opts );
+/**
+* FUNCTION: onError( evt )
+*	Event listener invoked when a query instance emits an `error`.
+*
+* @param {Object} evt - error event object
+*/
+function onError( evt ) {
+	console.error( evt );
+}
 
+/**
+* FUNCTION: onRequest( evt )
+*	Event listener invoked when a query makes a request to the Github API.
+*
+* @param {Object} evt - event object
+*/
+function onRequest( evt ) {
+	console.log( evt );
+}
+
+/**
+* FUNCTION: onPage( evt )
+*	Event listener invoked when a query receives a paginated result.
+*
+* @param {Object} evt - page event object
+*/
+function onPage( evt ) {
+	var pct = evt.count / evt.total * 100;
+	console.log( 'Query %d progress: %d%.' , evt.qid, Math.round( pct ) );
+}
+
+/**
+* FUNCTION: onData( evt )
+*	Event listener invoked when all data has been received.
+*
+* @param {Object} evt - event object
+*/
+function onData( evt ) {
+	console.log( evt.data );
+}
+
+/**
+* FUNCTION: onEnd( qid )
+*	Event listener invoked when a query ends.
+*
+* @param {Number} qid - query id
+*/
+function onEnd( qid ) {
+	console.log( 'Query %d ended...', qid );
+}
+
+var query = createQuery( opts );
 query.on( 'error', onError );
 query.on( 'request', onRequest );
 query.on( 'page', onPage );
 query.on( 'data', onData );
 query.on( 'end', onEnd );
 
+// Stop polling after 60 seconds...
 setTimeout( function stop() {
 	query.stop();
 }, 60000 );
-
-function onError( evt ) {
-	console.error( evt );
-}
-function onRequest( evt ) {
-	console.log( 'Query %d request...', evt.qid );
-}
-function onPage( evt ) {
-	var progress = evt.count / evt.total * 100;
-	console.log( 'Query %d progress: %d%.' , evt.qid, Math.round( progress ) );
-}
-function onData( evt ) {
-	console.log( evt.ratelimit );
-}
-function onEnd( id ) {
-	console.log( 'Query %d ended...', id );
-}
