@@ -26,7 +26,7 @@
     "url": "git://github.com/kgryte/github-get.git"
   },
   "keywords": [
-  	"gh",
+    "gh",
     "git",
     "github",
     "get",
@@ -61,6 +61,7 @@
     "jshint": "2.x.x",
     "jshint-stylish": "^1.0.0",
     "mocha": "2.x.x",
+    "nock": "^1.7.1",
     "proxyquire": "^1.4.0"
   },
   "licenses": [
