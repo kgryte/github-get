@@ -1,4 +1,4 @@
-/* global require, describe, it, beforeEach */
+/* global require, describe, it */
 'use strict';
 
 // MODULES //
@@ -108,7 +108,8 @@ describe( '@kgryte/github-get', function tests() {
 			.reply( 200, '[{}]' );
 
 		query = createQuery({
-			'uri': 'https://api.github.com/user/repos'
+			'uri': 'https://api.github.com/user/repos',
+			'all': false
 		});
 
 		expect( query.interval ).to.be.a( 'number' );
@@ -123,7 +124,8 @@ describe( '@kgryte/github-get', function tests() {
 			.reply( 200, '[{}]' );
 
 		query = createQuery({
-			'uri': 'https://api.github.com/user/repos'
+			'uri': 'https://api.github.com/user/repos',
+			'all': false
 		});
 
 		expect( query.all ).to.be.a( 'boolean' );
@@ -138,7 +140,8 @@ describe( '@kgryte/github-get', function tests() {
 			.reply( 200, '[{}]' );
 
 		query = createQuery({
-			'uri': 'https://api.github.com/user/repos'
+			'uri': 'https://api.github.com/user/repos',
+			'all': false
 		});
 
 		expect( query.pending ).to.be.a( 'number' );
@@ -174,7 +177,8 @@ describe( '@kgryte/github-get', function tests() {
 			.reply( 200, '[{}]' );
 
 		query = createQuery({
-			'uri': 'https://api.github.com/user/repos'
+			'uri': 'https://api.github.com/user/repos',
+			'all': false
 		});
 
 		query.on( 'error', onError );
@@ -216,7 +220,8 @@ describe( '@kgryte/github-get', function tests() {
 			.reply( 200, '[{}]' );
 
 		query = createQuery({
-			'uri': 'https://api.github.com/user/repos'
+			'uri': 'https://api.github.com/user/repos',
+			'all': false
 		});
 
 		query.on( 'error', onError );
@@ -234,37 +239,141 @@ describe( '@kgryte/github-get', function tests() {
 		}
 	});
 
-	xit( 'should poll', function test( done ) {
-		var count = 0,
-			get,
-			id;
+	it( 'should get/set the `all` attribute', function test() {
+		var query,
+			scope;
 
-		get = proxyquire( mpath, {
-			'request': request
+		scope = nock( 'https://api.github.com' )
+			.filteringPath( replace )
+			.get( '/user/repos' )
+			.reply( 200, '[{}]' );
+
+		query = createQuery({
+			'uri': 'https://api.github.com/user/repos',
+			'all': false
 		});
 
-		id = get({
+		assert.isFalse( query.all );
+
+		query.all = true;
+		assert.isTrue( query.all );
+	});
+
+	it( 'should emit a `pending` event while waiting for an HTTP response and again after an HTTP response has been received', function test( done ) {
+		var count = 0,
+			query,
+			scope;
+
+		scope = nock( 'https://api.github.com' )
+			.filteringPath( replace )
+			.get( '/user/repos' )
+			.reply( 200, '[{}]' );
+
+		query = createQuery({
+			'uri': 'https://api.github.com/user/repos',
+			'all': false
+		});
+
+		query.on( 'pending', onPending );
+
+		function onPending( num ) {
+			count += 1;
+			if ( count === 1 ) {
+				if ( num !== 1 ) {
+					assert.ok( false );
+				}
+				return;
+			}
+			if ( num !== 0 ) {
+				assert.ok( false );
+			}
+			done();
+		}
+	});
+
+	it( 'should emit a `start` event when starting to poll an endpoint', function test( done ) {
+		var query,
+			scope;
+
+		scope = nock( 'https://api.github.com' )
+			.filteringPath( replace )
+			.get( '/user/repos' )
+			.reply( 200, '[{}]' );
+
+		query = createQuery({
 			'uri': 'https://api.github.com/user/repos',
 			'all': false,
-			'interval': 100 // Don't do this in production! You'll max out your rate limit!
-		}, clbk );
+			'interval': 60000
+		});
 
-		function request( opts, clbk ) {
-			clbk( null, {
-				'statusCode':200
-			}, '[{"beep":"boop"}]' );
+		query.on( 'start', onStart );
+
+		function onStart() {
+			query.stop();
+			assert.ok( true );
+			done();
+		}
+	});
+
+	it( 'should emit a `stop` event when stopping endpoint polling', function test( done ) {
+		var query,
+			scope;
+
+		scope = nock( 'https://api.github.com' )
+			.filteringPath( replace )
+			.get( '/user/repos' )
+			.reply( 200, '[{}]' );
+
+		query = createQuery({
+			'uri': 'https://api.github.com/user/repos',
+			'all': false,
+			'interval': 60000
+		});
+
+		query.on( 'start', onStart );
+		query.on( 'stop', onStop );
+
+		function onStart() {
+			setTimeout( onTimeout, 200 );
+			function onTimeout() {
+				query.stop();
+			}
+		}
+		function onStop() {
+			assert.ok( true );
+			done();
+		}
+	});
+
+	it( 'should start polling when the `interval` attribute is set', function test( done ) {
+		var query,
+			scope;
+
+		scope = nock( 'https://api.github.com' )
+			.filteringPath( replace )
+			.get( '/user/repos' )
+			.reply( 200, '[{}]' )
+			.get( '/user/repos' )
+			.reply( 200, '[{}]' );
+
+		query = createQuery({
+			'uri': 'https://api.github.com/user/repos',
+			'all': false
+		});
+
+		query.on( 'start', onStart );
+
+		query.interval = 60000;
+
+		function onStart() {
+			setTimeout( onTimeout, 200 );
 		}
 
-		function clbk( error, body ) {
-			if ( error ) {
-				assert.ok( false );
-			} else {
-				assert.isArray( body );
-			}
-			if ( ++count === 2 ) {
-				clearInterval( id );
-				done();
-			}
+		function onTimeout() {
+			query.stop();
+			assert.strictEqual( query.interval, 60000 );
+			assert.ok( scope.isDone() );
+			done();
 		}
 	});
 
