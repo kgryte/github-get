@@ -1,4 +1,4 @@
-/* global require, describe, it */
+/* global require, describe, it, beforeEach */
 'use strict';
 
 // MODULES //
@@ -22,6 +22,10 @@ var expect = chai.expect,
 // TESTS //
 
 describe( '@kgryte/github-get', function tests() {
+
+	function replace( path ) {
+		return path.replace( /\?.*/, '' );
+	}
 
 	it( 'should export a function', function test() {
 		expect( createQuery ).to.be.a( 'function' );
@@ -92,6 +96,141 @@ describe( '@kgryte/github-get', function tests() {
 					'interval':value
 				});
 			};
+		}
+	});
+
+	it( 'should expose an `interval` attribute', function test() {
+		var query, scope;
+
+		scope = nock( 'https://api.github.com' )
+			.filteringPath( replace )
+			.get( '/user/repos' )
+			.reply( 200, '[{}]' );
+
+		query = createQuery({
+			'uri': 'https://api.github.com/user/repos'
+		});
+
+		expect( query.interval ).to.be.a( 'number' );
+	});
+
+	it( 'should expose an `all` attribute', function test() {
+		var query, scope;
+
+		scope = nock( 'https://api.github.com' )
+			.filteringPath( replace )
+			.get( '/user/repos' )
+			.reply( 200, '[{}]' );
+
+		query = createQuery({
+			'uri': 'https://api.github.com/user/repos'
+		});
+
+		expect( query.all ).to.be.a( 'boolean' );
+	});
+
+	it( 'should expose a read-only `pending` attribute', function test() {
+		var query, scope;
+
+		scope = nock( 'https://api.github.com' )
+			.filteringPath( replace )
+			.get( '/user/repos' )
+			.reply( 200, '[{}]' );
+
+		query = createQuery({
+			'uri': 'https://api.github.com/user/repos'
+		});
+
+		expect( query.pending ).to.be.a( 'number' );
+		expect( foo ).to.throw( Error );
+
+		function foo() {
+			query.pending = 5;
+		}
+	});
+
+	it( 'should emit an error if a user attempts to assign an invalid interval', function test( done ) {
+		var count = 0,
+			scope,
+			values,
+			query;
+
+		values = [
+			'5',
+			-1,
+			0,
+			null,
+			undefined,
+			NaN,
+			true,
+			[],
+			{},
+			function(){}
+		];
+
+		scope = nock( 'https://api.github.com' )
+			.filteringPath( replace )
+			.get( '/user/repos' )
+			.reply( 200, '[{}]' );
+
+		query = createQuery({
+			'uri': 'https://api.github.com/user/repos'
+		});
+
+		query.on( 'error', onError );
+
+		for ( var i = 0; i < values.length; i++ ) {
+			query.interval = values[ i ];
+		}
+
+		function onError( evt ) {
+			assert.ok( evt instanceof TypeError );
+			count += 1;
+			if ( count === values.length ) {
+				done();
+			}
+		}
+	});
+
+	it( 'should emit an error if a user attempts to assign an invalid `all` value', function test( done ) {
+		var count = 0,
+			scope,
+			values,
+			query;
+
+		values = [
+			'5',
+			1,
+			null,
+			undefined,
+			NaN,
+			new Boolean( true ),
+			[],
+			{},
+			function(){}
+		];
+
+		scope = nock( 'https://api.github.com' )
+			.filteringPath( replace )
+			.get( '/user/repos' )
+			.reply( 200, '[{}]' );
+
+		query = createQuery({
+			'uri': 'https://api.github.com/user/repos'
+		});
+
+		query.on( 'error', onError );
+
+		for ( var i = 0; i < values.length; i++ ) {
+			query.all = values[ i ];
+		}
+
+		function onError( evt ) {
+			assert.ok( evt instanceof TypeError );
+			count += 1;
+			if ( count === values.length ) {
+				done();
+			}
 		}
 	});
 
