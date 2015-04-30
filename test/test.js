@@ -259,6 +259,51 @@ describe( '@kgryte/github-get', function tests() {
 		assert.isTrue( query.all );
 	});
 
+	it( 'should provide a method for submitting a query manually', function test() {
+		var query,
+			scope;
+
+		scope = nock( 'https://api.github.com' )
+			.filteringPath( replace )
+			.get( '/user/repos' )
+			.reply( 200, '[{}]' );
+
+		query = createQuery({
+			'uri': 'https://api.github.com/user/repos',
+			'all': false
+		});
+
+		assert.isFunction( query.query );
+	});
+
+	it( 'should query an endpoint', function test( done ) {
+		var count = 0,
+			query,
+			scope;
+
+		scope = nock( 'https://api.github.com' )
+			.filteringPath( replace )
+			.get( '/user/repos' )
+			.reply( 200, '[{}]' )
+			.get( '/user/repos' )
+			.reply( 200, '[{}]' );
+
+		query = createQuery({
+			'uri': 'https://api.github.com/user/repos',
+			'all': false
+		});
+
+		query.on( 'end', onEnd );
+		query.query();
+
+		function onEnd() {
+			if ( ++count === 2 ) {
+				assert.ok( scope.isDone() );
+				done();
+			}
+		}
+	});
+
 	it( 'should emit a `pending` event while waiting for an HTTP response and again after an HTTP response has been received', function test( done ) {
 		var count = 0,
 			query,
