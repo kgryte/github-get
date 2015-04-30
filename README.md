@@ -42,7 +42,7 @@ function onData( evt ) {
 The `constructor` accepts the standard [request](https://github.com/request/request) options. Additional options are as follows:
 
 -	__all__: `boolean` indicating if all paginated results should be returned from the endpoint. By default, Github [paginates](https://developer.github.com/guides/traversing-with-pagination/) results. Setting this option to `true` instructs the `Query` instance to continue making requests until __all__ pages have been returned. Default: `false`.
--	__interval__: positive number defining a poll [interval](https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setInterval) for repeatedly querying the Github API. The interval should be in units of `milliseconds`. If an `interval` is __not__ provided, only a single query is made to the Github API. Default: `3600000` (1hr).
+-	__interval__: positive `number` defining a poll [interval](https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setInterval) for repeatedly querying the Github API. The interval should be in units of `milliseconds`. If an `interval` is __not__ provided, only a single query is made to the Github API. Default: `3600000` (1hr).
 
 	``` javascript
 	var opts = {
