@@ -72,7 +72,7 @@ if ( args.version ) {
 }
 
 
-// REQUEST //
+// OPTIONS //
 
 opts = defaults;
 
@@ -110,7 +110,9 @@ if ( args.accept ) {
 // Option to query for all paginated results:
 opts.all = args.all;
 
-// Make a request to the Github API:
+
+// REQUEST //
+
 request( opts, onResponse );
 
 /**
