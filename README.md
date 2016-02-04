@@ -21,201 +21,190 @@ var request = require( '@kgryte/github-get' );
 
 #### request( opts[, clbk] )
 
-Request resources from a [Github API][github-api] endpoint.
+Returns a `request` instance which fetches resources from a [Github API][github-api] endpoint.
 
 ``` javascript
-var opts = {
+var opts;
+var req;
+
+opts = {
 	'uri': 'https://api.github.com/user/repos'	
 };
 
-var query = createQuery( opts );
-query.on( 'data', onData );
+req = request( opts, onResponse );
+req.on( 'error', onError );
 
-function onData( evt ) {
-	console.log( evt.data );
+function onError( error ) {
+	throw error;
+}
+
+function onResponse( response ) {
+	response.on( 'data', onData );
+	response.on( 'end', onEnd );
+}
+
+function onData( data ) {
+	console.log( data );
 	// returns [{...},{...},...]
 }
-```
 
-The `constructor` accepts the standard [request](https://github.com/request/request) options. Additional options are as follows:
-
--	__all__: `boolean` indicating if all paginated results should be returned from the endpoint. By default, Github [paginates](https://developer.github.com/guides/traversing-with-pagination/) results. Setting this option to `true` instructs the `Query` instance to continue making requests until __all__ pages have been returned. Default: `false`.
--	__interval__: positive `number` defining a poll [interval](https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setInterval) for repeatedly querying the Github API. The interval should be in units of `milliseconds`. If an `interval` is __not__ provided, only a single query is made to the Github API. Default: `3600000` (1hr).
-
-	``` javascript
-	var opts = {
-		'uri': 'https://api.github.com/user/repos',
-		'all': true,
-		'interval': 600000 // 10 minutes
-	};
-
-	// Every 10 minutes, fetch the list of repos...
-	var query = createQuery( opts );
-	query.on( 'data', onData );
-
-	function onData( evt ) {
-		console.log( evt.data );
-		// returns [{...},{...},...]
-	}
-	``` 
-
-
-
-===
-### Attributes
-
-A `Query` instance has the following attributes...
-
-
-#### query.all
-
-Attribute indicating if all paginated results should be returned from the endpoint. By default, Github [paginates](https://developer.github.com/guides/traversing-with-pagination/) results. Setting this option to `true` instructs a `Query` instance to continue making requests until __all__ pages have been returned. Default: `false`.
-
-``` javascript
-query.all = true;
-```
-
-
-#### query.interval
-
-Attribute defining a poll [interval](https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setInterval) for repeatedly querying the Github API. An `interval` should be in units of `milliseconds`. Default: `3600000` (1hr).
-
-``` javascript
-query.interval = 60000; // 1 minute
-```
-
-Once set, a `Query` instance immediately begins polling the Github API according to the specified `interval`.
-
-
-#### query.pending
-
-Read-only attribute providing the number of pending API requests.
-
-``` javascript
-if ( query.pending ) {
-	console.log( '%d requests still pending...', query.pending );
+function onEnd( evt ) {
+	console.log( evt );
+	// returns {...}
 }
 ```
 
+The `function` accepts the standard [request][http-request] options. The `function` also accepts the following additional `options`:
+
+-	__all__: `boolean` indicating if all [paginated][github-pagination] results should be resolved from an endpoint. By default, Github [paginates][github-pagination] results. Setting this option to `true` specifies that __all__ pages should be resolved. Default: `false`.
+
 
 ===
-### Methods
+## Request
 
-A `Query` instance has the following methods...
+### Attributes
 
-#### query.query()
-
-Instructs a `Query` instance to perform a single query of a Github API endpoint.
-
-``` javascript
-query.query();
-```
-
-This method is useful when manually polling an endpoint (i.e., no fixed `interval`).
+A `request` instance has the following attributes...
 
 
-#### query.start()
+#### req.pending
 
-Instructs a `Query` instance to start polling a Github API endpoint. 
+__Read-only__ attribute providing the number of pending API [page][github-pagination] requests.
 
 ``` javascript
-query.start();
+if ( req.pending ) {
+	console.log( '%d page requests still pending...', req.pending );
+}
 ```
-
-
-#### query.stop()
-
-Instructs a `Query` instance to stop polling a Github API endpoint.
-
-``` javascript
-query.stop();
-```
-
-__Note__: pending requests are still allowed to complete. 
-
 
 
 ===
 ### Events
 
-A `Query` instance emits the following events...
+A `request` instance emits the following events...
 
 
 #### 'error'
 
-A `Query` instance emits an `error` event whenever a non-fatal error occurs; e.g., an invalid value is assigned to an attribute, HTTP response errors, etc. To capture `errors`,
+A `request` instance emits an `error` event whenever a request error occurs. To capture `errors`,
 
 ``` javascript
 function onError( evt ) {
 	console.error( evt );
 }
 
-query.on( 'error', onError );
+req.on( 'error', onError );
 ```
 
-#### 'init'
+If an `error` handler is not registered, any encountered `errors` will be thrown.
 
-A `Query` instance emits an `init` event prior to querying a Github endpoint. Each query is assigned a unique identifier, which is emitted during this event.
+
+#### 'start'
+
+A `request` instance emits a `start` event prior to fetching resources a Github endpoint. Each `request` is assigned a unique identifier, which is emitted during this event.
 
 ``` javascript
-function onInit( evt ) {
-	console.log( evt.qid );
+function onStart( evt ) {
+	console.log( evt.rid );
 }
 
-query.on( 'init', onInit );
+req.on( 'start', onStart );
 ```
 
-Listening on this event could be useful for query monitoring.
+Listening on this event could be useful for `request` monitoring.
 
 
-#### 'request'
+#### 'query'
 
-A `Query` instance emits a `request` event when making an HTTP request to a Github endpoint. If `query.all` is `true`, a single query could be comprised of multiple requests. Each request will result in a `request` event.
+A `request` instance emits a `query` event when making an HTTP request to a Github endpoint. If `opts.all` is `true`, a single request could be comprised of multiple queries. Each query will result in a `query` event.
 
 ``` javascript
-function onRequest( evt ) {
+function onQuery( evt ) {
 	console.log( evt );
 }
 
-query.on( 'request', onRequest );
+req.on( 'query', onQuery );
 ```
 
-For paginated queries, each request maps to a particular page. The page identifier is specified by a request id `rid`.
+For [paginated][github-pagination] queries, each query maps to a particular page. The page identifier is specified by a query id `evt.qid`.
+
+
+
+#### 'response'
+
+A `request` instance emits a `response` event upon successfully receiving an API response.
+
+``` javascript
+function onResponse( response ) {
+	response.on( 'data', onData );
+	response.on( 'end', onEnd );
+}
+
+function onData( data ) {
+	console.log( data );
+}
+
+function onEnd( evt ) {
+	console.log( evt );
+}
+
+req.on( 'response', onResponse );
+```
+
+
+#### 'pending'
+
+A `request` instance emits a `pending` event anytime the number of pending queries changes. Listening to this event could be useful when wanting to gracefully end a process (e.g., allow all pending queries to finish before termination).
+
+``` javascript
+function onPending( count ) {
+	console.log( '%d pending requests...', count );
+}
+
+req.on( 'pending', onPending );
+```
+
+
+===
+## Response
+
+### Events
+
+A `response` instance emits the following events...
 
 
 #### 'page'
 
-A `Query` instance emits a `page` event upon receiving a paginated response.
+A `response` instance emits a `page` event upon receiving a [paginated][github-pagination] response.
 
 ``` javascript
 function onPage( evt ) {
-	console.log( 'Request id: %d.', evt.rid );
+	console.log( 'Query id: %d.', evt.qid );
 	console.log( 'Page number: %d.', evt.page );
 	console.log( 'Page %d of %d.', evt.count, evt.total );
 	console.log( evt.data );
 }
 
-query.on( 'page', onPage );
+response.on( 'page', onPage );
 ```
 
 
 #### 'data'
 
-A `Query` instance emits a `data` event after processing all query data. For queries involving pagination, all data is concatenated into a single `array`.
+A `response` instance emits a `data` event after processing all `request` data. For `requests` involving [pagination][github-pagination], all data is concatenated into a single JSON `array`.
 
 ``` javascript
-function onData( evt ) {
-	console.log( evt.data );
+function onData( json ) {
+	console.log( json );
 }
 
-query.on( 'data', onData );
+response.on( 'data', onData );
 ```
-
 
 
 #### 'end'
 
-A `Query` instance emits an `end` event once a query is finished processing all requests. Of interest, the emitted event includes [rate limit](https://developer.github.com/v3/rate_limit/) information, which could be useful for throttling queries.
+A `response` instance emits an `end` event once a `request` is finished resolving all queries. Of interest, the emitted event includes [rate limit][github-rate-limit] information, which could be useful for throttling multiple `requests`.
 
 ``` javascript
 function onEnd( evt ) {
@@ -223,50 +212,8 @@ function onEnd( evt ) {
 	console.dir( evt.ratelimit );
 }
 
-query.on( 'end', onEnd );
+response.on( 'end', onEnd );
 ```
-
-
-#### 'pending'
-
-A `Query` instance emits a `pending` event anytime the number of pending requests changes. Listening to this event could be useful when wanting to gracefully end a `Query` instance (e.g., allow all pending requests to finish before killing a process).
-
-``` javascript
-function onPending( count ) {
-	console.log( '%d pending requests...', count );
-}
-
-query.on( 'pending', onPending );
-```
-
-
-#### 'start'
-
-A `Query` instance emits a `start` event immediately before creating a new interval timer and starting to poll a Github API endpoint.
-
-``` javascript
-function onStart() {
-	console.log( 'Polling has begun...' );
-}
-
-query.on( 'start', onStart );
-```
-
-
-#### 'stop'
-
-A `Query` instance emits a `stop` event when it stops polling a Github API endpoint.
-
-``` javascript
-function onStop() {
-	console.log( 'Polling has ended...' );
-}
-
-query.on( 'stop', onStop );
-```
-
-__Note__: pending requests may result in `data` and other associated events being emitted __after__ a `stop` event occurs.
-
 
 
 ---
@@ -275,27 +222,39 @@ __Note__: pending requests may result in `data` and other associated events bein
 ``` javascript
 var request = require( '@kgryte/github-get' );
 
-var opts = {
-	'uri': 'https://api.github.com/user/repos',
+var opts;
+var req;
+
+opts = {
+	'uri': 'https://api.github.com/user/repos?page=1&per_page=100',
 	'headers': {
 		'User-Agent': 'my-unique-agent',
 		'Accept': 'application/vnd.github.moondragon+json',
 		'Authorization': 'token tkjorjk34ek3nj4!'
 	},
-	'qs': {
-		'page': 1,
-		'per_page': 100
-	},
 	'all': true
 };
 
-request( opts, onResponse );
+req = request( opts, onResponse );
+req.on( 'error', onError );
 
-function onResponse( error, data ) {
-	if ( error ) {
-		throw error;
-	}
-	console.log( JSON.stringify( data ) );
+function onError( error ) {
+	throw error;
+}
+
+function onResponse( response ) {
+	response.on( 'data', onData );
+	response.on( 'end', onEnd );
+}
+
+function onData( data ) {
+	console.log( data );
+	// returns [{...},{...},...]
+}
+
+function onEnd( evt ) {
+	console.log( evt );
+	// returns {...}
 }
 ```
 
@@ -346,27 +305,27 @@ Options:
 Setting the personal access [token][github-token] using the command-line option:
 
 ``` bash
-$ ghget --token <token> --accept 'application/vnd.github.moondragon+json' --all 'https://api.github.com/user/repos'
+$ DEBUG=* ghget --token <token> --accept 'application/vnd.github.moondragon+json' --all 'https://api.github.com/user/repos'
 # => '[{..},{..},...]'
 ```
 
 Setting the personal access [token][github-token] using an environment variable:
 
 ``` bash
-$ GITHUB_TOKEN=<token> ghget --accept 'application/vnd.github.moondragon+json' --all 'https://api.github.com/user/repos'
+$ DEBUG=* GITHUB_TOKEN=<token> ghget --accept 'application/vnd.github.moondragon+json' --all 'https://api.github.com/user/repos'
 # => '[{...},{...},...]'
 ```
 
 For local installations, modify the command to point to the local installation directory; e.g., 
 
 ``` bash
-$ ./node_modules/.bin/ghget --token <token> 'https://api.github.com/user/repos'
+$ DEBUG=* ./node_modules/.bin/ghget --token <token> 'https://api.github.com/user/repos'
 ```
 
 Or, if you have cloned this repository and run `npm install`, modify the command to point to the executable; e.g., 
 
 ``` bash
-$ node ./bin/cli --token <token> 'https://api.github.com/user/repos'
+$ DEBUG=* node ./bin/cli --token <token> 'https://api.github.com/user/repos'
 ```
 
 
@@ -449,5 +408,8 @@ Copyright &copy; 2015-2016. Athan Reines.
 [istanbul]: https://github.com/gotwarlost/istanbul
 [testling]: https://ci.testling.com
 
+[http-request]: https://nodejs.org/api/http.html#http_http_request_options_callback
 [github-api]: https://developer.github.com/v3/
 [github-token]: https://github.com/settings/tokens/new
+[github-pagination]: https://developer.github.com/guides/traversing-with-pagination/
+[github-rate-limit]: https://developer.github.com/v3/rate_limit/
