@@ -366,7 +366,6 @@ Options:
 ### Notes
 
 *	In addition to the command-line `token` option, the token may also be specified by a `GITHUB_TOKEN` environment variable. The command-line option __always__ takes precedence.
-*	If the process receives a terminating [signal event](https://nodejs.org/api/process.html#process_signal_events) (e.g., `CTRL+C`) while polling a Github API endpoint, the process will stop polling and wait for any pending requests to complete before exiting.
 
 
 ### Examples
@@ -374,21 +373,21 @@ Options:
 Setting the personal access [token](https://github.com/settings/tokens/new) using the command-line option:
 
 ``` bash
-$ github-get --token <token> --accept 'application/vnd.github.moondragon+json' --all 'https://api.github.com/user/repos'
+$ ghget --token <token> --accept 'application/vnd.github.moondragon+json' --all 'https://api.github.com/user/repos'
 # => '[{..},{..},...]'
 ```
 
 Setting the personal access [token](https://github.com/settings/tokens/new) using an environment variable:
 
 ``` bash
-$ GITHUB_TOKEN=<token> github-get --accept 'application/vnd.github.moondragon+json' --all 'https://api.github.com/user/repos'
+$ GITHUB_TOKEN=<token> ghget --accept 'application/vnd.github.moondragon+json' --all 'https://api.github.com/user/repos'
 # => '[{...},{...},...]'
 ```
 
 For local installations, modify the command to point to the local installation directory; e.g., 
 
 ``` bash
-$ ./node_modules/.bin/github-get --token <token> 'https://api.github.com/user/repos'
+$ ./node_modules/.bin/ghget --token <token> 'https://api.github.com/user/repos'
 ```
 
 Or, if you have cloned this repository and run `npm install`, modify the command to point to the executable; e.g., 
