@@ -353,17 +353,17 @@ $ npm install -g @kgryte/github-get
 ### Usage
 
 ``` bash
-Usage: github-get [options] <uri>
+Usage: github-get [options] uri
 
 Options:
 
   -h,    --help                Print this message.
   -V,    --version             Print the package version.
-         --uri [uri]           Github URI.
-         --token [token]       Github personal access token.
-         --accept [media_type] Github media type.
+         --uri uri             Github URI.
+         --token token         Github personal access token.
+         --accept media_type   Github media type.
          --all                 Fetch all pages.
-         --interval [ms]       Poll interval (in milliseconds).
+         --interval ms         Poll interval (in milliseconds).
 ```
 
 ### Notes
