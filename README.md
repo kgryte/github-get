@@ -2,7 +2,7 @@ Github Get
 ===
 [![NPM version][npm-image]][npm-url] [![Build Status][build-image]][build-url] [![Coverage Status][coverage-image]][coverage-url] [![Dependencies][dependencies-image]][dependencies-url]
 
-> Retrieves resources from a [Github API](https://developer.github.com/v3/) endpoint.
+> Retrieves resources from a [Github API][github-api] endpoint.
 
 
 ## Installation
@@ -15,13 +15,13 @@ $ npm install @kgryte/github-get
 ## Usage
 
 ``` javascript
-var createQuery = require( '@kgryte/github-get' );
+var request = require( '@kgryte/github-get' );
 ```
 
 
-#### createQuery( opts )
+#### request( opts[, clbk] )
 
-Creates a new `Query` instance for retrieving resources from a [Github API](https://developer.github.com/v3/) endpoint.
+Request resources from a [Github API][github-api] endpoint.
 
 ``` javascript
 var opts = {
@@ -269,7 +269,6 @@ __Note__: pending requests may result in `data` and other associated events bein
 
 
 
-
 ---
 ## Examples
 
@@ -339,7 +338,7 @@ Options:
 
 ### Notes
 
-*	In addition to the command-line `token` option, the token may also be specified by a `GITHUB_TOKEN` environment variable. The command-line option __always__ takes precedence.
+*	In addition to the command-line [`token`][github-token] option, the token may also be specified by a [`GITHUB_TOKEN`][github-token] environment variable. The command-line option __always__ takes precedence.
 
 
 ### Examples
@@ -450,4 +449,5 @@ Copyright &copy; 2015-2016. Athan Reines.
 [istanbul]: https://github.com/gotwarlost/istanbul
 [testling]: https://ci.testling.com
 
+[github-api]: https://developer.github.com/v3/
 [github-token]: https://github.com/settings/tokens/new
