@@ -351,7 +351,7 @@ $ npm install -g @kgryte/github-get
 ### Usage
 
 ``` bash
-Usage: ghget [options] uri
+Usage: ghget [options] (uri | --uri uri)
 
 Options:
 
