@@ -7,7 +7,9 @@ var fs = require( 'fs' );
 var path = require( 'path' );
 var url = require( 'url' );
 var parseArgs = require( 'minimist' );
+var notifier = require( 'update-notifier' );
 var opts = require( './opts.json' );
+var pkg = require( './../package.json' );
 
 
 // VARIABLES //
@@ -137,6 +139,11 @@ function onCleanup( code ) {
 process.stdout.on( 'error', process.exit );
 
 
+// PACKAGE UPDATES //
+
+notifier( { 'pkg': pkg } ).notify();
+
+
 // ARGUMENTS //
 
 args = parseArgs( process.argv.slice( 2 ), opts );
@@ -155,7 +162,7 @@ if ( args.help ) {
 // VERSION //
 
 if ( args.version ) {
-	console.log( require( './../package.json' ).version );
+	console.log( pkg.version );
 	return;
 }
 
