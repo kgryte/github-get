@@ -1,35 +1,38 @@
-/* global require, describe, it */
 'use strict';
 
 // MODULES //
 
-var // Expectation library:
-	chai = require( 'chai' ),
-
-	// Module to be tested:
-	getHeaders = require( './../lib/headers.js' );
-
-
-// VARIABLES //
-
-var expect = chai.expect,
-	assert = chai.assert;
+var tape = require( 'tape' );
+var getHeaders = require( './../lib/headers.js' );
 
 
 // TESTS //
 
-describe( 'headers', function tests() {
+tape( 'the main export is a function', function test( t ) {
+	t.ok( typeof getHeaders === 'function', 'main export is a function' );
+	t.end();
+});
 
-	it( 'should export a function', function test() {
-		expect( getHeaders ).to.be.a( 'function' );
-	});
+tape( 'the function returns an object', function test( t ) {
+	var headers = getHeaders( {} );
+	t.ok( typeof headers === 'object', 'returns an object' );
+	t.end();
+});
 
-	it( 'should return an object', function test() {
-		var headers = getHeaders( {} );
-		assert.isObject( headers );
-		assert.property( headers, 'date' );
-		assert.property( headers, 'content-length' );
-		assert.property( headers, 'status' );
-	});
+tape( 'the function returns an object with a `date` property', function test( t ) {
+	var headers = getHeaders( {} );
+	t.ok( Object.hasOwnProperty( headers, 'date' ), 'has `date` property' );
+	t.end();
+});
 
+tape( 'the function returns an object with a `content-length` property', function test( t ) {
+	var headers = getHeaders( {} );
+	t.ok( Object.hasOwnProperty( headers, 'content-length' ), 'has `content-length` property' );
+	t.end();
+});
+
+tape( 'the function returns an object with a `status` property', function test( t ) {
+	var headers = getHeaders( {} );
+	t.ok( Object.hasOwnProperty( headers, 'status' ), 'has `status` property' );
+	t.end();
 });
