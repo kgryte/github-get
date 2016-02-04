@@ -1,89 +1,90 @@
-/* global require, describe, it, beforeEach */
 'use strict';
 
 // MODULES //
 
-var // Expectation library:
-	chai = require( 'chai' ),
-
-	// Deep copy:
-	copy = require( 'utils-copy' ),
-
-	// Module to be tested:
-	checklimit = require( './../lib/checklimit.js' );
+var tape = require( 'tape' );
+var copy = require( 'utils-copy' );
+var checklimit = require( './../lib/checklimit.js' );
 
 
-// VARIABLES //
+// FUNCTIONS //
 
-var expect = chai.expect,
-	assert = chai.assert;
+function setup() {
+	return {
+		'limit': 5000,
+		'remaining': 4995,
+		'reset': Date.now()
+	};
+}
 
 
 // TESTS //
 
-describe( 'check rate limit headers', function tests() {
+tape( 'the main export is a function', function test( t ) {
+	t.ok( typeof checklimit === 'function', 'main export is a function' );
+	t.end();
+});
 
+tape( 'if a header contains an old reset time, the function does nothing', function test( t ) {
 	var ratelimit;
+	var expected;
+	var headers;
 
-	beforeEach( function before() {
-		ratelimit = {
-			'limit': 5000,
-			'remaining': 4995,
-			'reset': Date.now()
-		};
-	});
+	ratelimit = setup();
 
-	it( 'should export a function', function test() {
-		expect( checklimit ).to.be.a( 'function' );
-	});
+	headers = {
+		'x-ratelimit-reset': (ratelimit.reset-100).toString(),
+		'x-ratelimit-remaining': '4990',
+		'x-ratelimit-limit': '5000'
+	};
 
-	it( 'should do nothing if a header contains an old reset time', function test() {
-		var headers, expected;
+	expected = copy( ratelimit );
+	checklimit( ratelimit, headers );
 
-		headers = {
-			'x-ratelimit-reset': (ratelimit.reset-100).toString(),
-			'x-ratelimit-remaining': '4990',
-			'x-ratelimit-limit': '5000'
-		};
+	t.deepEqual( ratelimit, expected, 'does not update rate limit information' );
+	t.end();
+});
 
-		expected = copy( ratelimit );
-		checklimit( ratelimit, headers );
+tape( 'if provided a header containing a new reset time, the function will update both the reset time and the remaining request limit', function test( t ) {
+	var ratelimit;
+	var expected;
+	var headers;
 
-		assert.deepEqual( ratelimit, expected );
-	});
+	ratelimit = setup();
 
-	it( 'should update both the reset time and the remaining request limit if provided a header containing a new reset time', function test() {
-		var headers, expected;
+	headers = {
+		'x-ratelimit-reset': (ratelimit.reset+100).toString(),
+		'x-ratelimit-remaining': '4999',
+		'x-ratelimit-limit': '5000'
+	};
 
-		headers = {
-			'x-ratelimit-reset': (ratelimit.reset+100).toString(),
-			'x-ratelimit-remaining': '4999',
-			'x-ratelimit-limit': '5000'
-		};
+	expected = copy( ratelimit );
+	expected.remaining = +headers[ 'x-ratelimit-remaining' ];
+	expected.reset = +headers[ 'x-ratelimit-reset' ];
 
-		expected = copy( ratelimit );
-		expected.remaining = +headers[ 'x-ratelimit-remaining' ];
-		expected.reset = +headers[ 'x-ratelimit-reset' ];
+	checklimit( ratelimit, headers );
+	t.deepEqual( ratelimit, expected, 'updates the reset time and remaining request limit' );
+	t.end();
+});
 
-		checklimit( ratelimit, headers );
-		assert.deepEqual( ratelimit, expected );
-	});
+tape( 'if the reset time is the same and the header indicates fewer remaining request, the function will update the number of remaining requests', function test( t ) {
+	var ratelimit;
+	var expected;
+	var headers;
 
-	it( 'should update the number of remaining requests if the reset time is the same and a header indicates fewer remaining requests', function test() {
-		var headers, expected;
+	ratelimit = setup();
 
-		headers = {
-			'x-ratelimit-reset': ratelimit.reset.toString(),
-			'x-ratelimit-remaining': '4990',
-			'x-ratelimit-limit': '5000'
-		};
+	headers = {
+		'x-ratelimit-reset': ratelimit.reset.toString(),
+		'x-ratelimit-remaining': '4990',
+		'x-ratelimit-limit': '5000'
+	};
 
-		expected = copy( ratelimit );
-		expected.remaining = +headers[ 'x-ratelimit-remaining' ];
+	expected = copy( ratelimit );
+	expected.remaining = +headers[ 'x-ratelimit-remaining' ];
 
-		checklimit( ratelimit, headers );
+	checklimit( ratelimit, headers );
 
-		assert.deepEqual( ratelimit, expected );
-	});
-
+	t.deepEqual( ratelimit, expected, 'updates the number of remaining requests' );
+	t.end();
 });
