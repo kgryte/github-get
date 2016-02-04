@@ -3,19 +3,27 @@
 
 // MODULES //
 
-var fs = require( 'fs' ),
-	path = require( 'path' ),
-	url = require( 'url' ),
-	parseArgs = require( 'minimist' ),
-	opts = require( './opts.json' );
+var fs = require( 'fs' );
+var path = require( 'path' );
+var url = require( 'url' );
+var parseArgs = require( 'minimist' );
+var opts = require( './opts.json' );
 
 
 // VARIABLES //
 
-var SIGTERM = 128 + 15,
-	SIGINT = 128 + 2,
-	SIGHUP = 128 + 1,
-	query;
+var SIGTERM = 128 + 15;
+var SIGINT = 128 + 2;
+var SIGHUP = 128 + 1;
+var request;
+var token;
+var args;
+var keys;
+var uri;
+var len;
+var key;
+var qs;
+var i;
 
 
 // FUNCTIONS //
@@ -27,7 +35,7 @@ var SIGTERM = 128 + 15,
 * @private
 */
 function onClose() {
-	process.exit( 1 );
+	process.exit( 0 );
 }
 
 /**
@@ -90,9 +98,9 @@ function sighup() {
 * @param {Function} clbk - callback to invoke once cleanup tasks are finished
 */
 function cleanup( clbk ) {
-	query.stop();
-	if ( query.pending ) {
-		query.on( 'pending', onPending );
+	request.stop();
+	if ( request.pending ) {
+		request.on( 'pending', onPending );
 	} else {
 		clbk();
 	}
@@ -131,7 +139,7 @@ process.stdout.on( 'error', process.exit );
 
 // ARGUMENTS //
 
-var args = parseArgs( process.argv.slice( 2 ), opts );
+args = parseArgs( process.argv.slice( 2 ), opts );
 
 
 // HELP //
@@ -154,17 +162,9 @@ if ( args.version ) {
 
 // REQUEST //
 
-var token,
-	keys,
-	uri,
-	len,
-	key,
-	qs,
-	i;
-
 opts = require( './defaults.json' );
 
-// [0] Parse the URI and extract any query string parameters...
+// Parse the URI and extract any query string parameters...
 if ( args._.length ) {
 	uri = args._[ 0 ];
 } else {
@@ -181,7 +181,7 @@ for ( i = 0; i < len; i++ ) {
 }
 opts.uri = uri;
 
-// [1] Set the authorization token...
+// Set the authorization token...
 if ( args.token ) {
 	token = args.token;
 }
@@ -191,25 +191,25 @@ else if ( process.env.GITHUB_TOKEN ) {
 if ( token ) {
 	opts.headers.Authorization = 'token ' + token;
 }
-// [2] If a special media type has been provided, set the `Accept` header...
+// If a special media type has been provided, set the `Accept` header...
 if ( args.accept ) {
 	opts.headers.Accept = args.accept;
 }
-// [3] Option to query for all paginated results:
+// Option to query for all paginated results:
 opts.all = args.all;
 
-// [4] Option for polling the Github API...
+// Option for polling the Github API...
 if ( args.interval ) {
 	opts.interval = parseFloat( args.interval );
 }
-// [5] Create a new query instance:
-query = require( './../lib' )( opts );
+// Create a new request instance:
+request = require( './../lib' )( opts );
 
-// [6] Add event listeners:
-query.on( 'error', onError );
-query.on( 'data', onData );
+// Add event listeners:
+request.on( 'error', onError );
+request.on( 'data', onData );
 
-// [7] Only add signal listeners if we are polling a Github API endpoint...
+// Only add signal listeners if we are polling a Github API endpoint...
 if ( opts.interval ) {
 	process.on( 'SIGTERM', sigterm );
 	process.on( 'SIGINT', sigint );
