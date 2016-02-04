@@ -19,7 +19,7 @@
   },
   "main": "./lib",
   "bin": {
-    "github-get": "./bin/cli"
+    "ghget": "./bin/cli"
   },
   "repository": {
     "type": "git",

@@ -1,5 +1,5 @@
 
-Usage: github-get [options] uri
+Usage: ghget [options] uri
 
 Options:
 
