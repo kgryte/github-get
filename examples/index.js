@@ -1,6 +1,6 @@
 'use strict';
 
-var createQuery = require( './../lib' );
+var request = require( './../lib' );
 
 var opts = {
 	'uri': 'https://api.github.com/user/repos',
@@ -21,7 +21,7 @@ var opts = {
 
 /**
 * FUNCTION: onError( evt )
-*	Event listener invoked when a query instance emits an `error`.
+*	Event listener invoked when a request instance emits an `error`.
 *
 * @param {Object} evt - error event object
 */
@@ -31,7 +31,7 @@ function onError( evt ) {
 
 /**
 * FUNCTION: onRequest( evt )
-*	Event listener invoked when a query makes a request to the Github API.
+*	Event listener invoked when a request makes a request to the Github API.
 *
 * @param {Object} evt - event object
 */
@@ -41,13 +41,13 @@ function onRequest( evt ) {
 
 /**
 * FUNCTION: onPage( evt )
-*	Event listener invoked when a query receives a paginated result.
+*	Event listener invoked when a request receives a paginated result.
 *
 * @param {Object} evt - page event object
 */
 function onPage( evt ) {
 	var pct = evt.count / evt.total * 100;
-	console.log( 'Query %d progress: %d%.' , evt.qid, Math.round( pct ) );
+	console.log( 'Request %d progress: %d%.' , evt.rid, Math.round( pct ) );
 }
 
 /**
@@ -62,23 +62,23 @@ function onData( evt ) {
 
 /**
 * FUNCTION: onEnd( evt )
-*	Event listener invoked when a query ends.
+*	Event listener invoked when a request ends.
 *
 * @param {Object} evt - end event object
 */
 function onEnd( evt ) {
-	console.log( 'Query %d ended...', evt.qid );
+	console.log( 'Request %d ended...', evt.rid );
 	console.dir( evt.ratelimit );
 }
 
-var query = createQuery( opts );
-query.on( 'error', onError );
-query.on( 'request', onRequest );
-query.on( 'page', onPage );
-query.on( 'data', onData );
-query.on( 'end', onEnd );
+var req = request( opts );
+req.on( 'error', onError );
+req.on( 'request', onRequest );
+req.on( 'page', onPage );
+req.on( 'data', onData );
+req.on( 'end', onEnd );
 
 // Stop polling after 60 seconds...
 setTimeout( function stop() {
-	query.stop();
+	req.stop();
 }, 60000 );

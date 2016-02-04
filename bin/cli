@@ -8,16 +8,14 @@ var path = require( 'path' );
 var url = require( 'url' );
 var parseArgs = require( 'minimist' );
 var notifier = require( 'update-notifier' );
-var opts = require( './opts.json' );
 var pkg = require( './../package.json' );
+var opts = require( './opts.json' );
+var defaults = require( './defaults.json' );
+var request = require( './../lib' );
 
 
 // VARIABLES //
 
-var SIGTERM = 128 + 15;
-var SIGINT = 128 + 2;
-var SIGHUP = 128 + 1;
-var request;
 var token;
 var args;
 var keys;
@@ -38,99 +36,6 @@ var i;
 */
 function onClose() {
 	process.exit( 0 );
-}
-
-/**
-* FUNCTION: onError( evt )
-*	Event listener invoked when a query instance emits an `error`.
-*
-* @private
-* @param {Object} evt - error event object
-*/
-function onError( evt ) {
-	console.error( evt );
-}
-
-/**
-* FUNCTION: onData( evt )
-*	Event listener invoked upon receiving data from a Github API endpoint. Writes the data to `stdout`.
-*
-* @private
-* @param {Object} evt - data event object
-*/
-function onData( evt ) {
-	process.stdout.write( JSON.stringify( evt.data ) );
-}
-
-/**
-* FUNCTION: sigterm()
-*	Callback invoked upon the process receiving a SIGTERM signal.
-*
-* @private
-*/
-function sigterm() {
-	cleanup( onCleanup( SIGTERM ) );
-}
-
-/**
-* FUNCTION: sigint()
-*	Callback invoked upon the process receiving a SIGINT signal.
-*
-* @private
-*/
-function sigint() {
-	cleanup( onCleanup( SIGINT ) );
-}
-
-/**
-* FUNCTION: sighup()
-*	Callback invoked upon the process receiving a SIGHUP signal.
-*
-* @private
-*/
-function sighup() {
-	cleanup( onCleanup( SIGHUP ) );
-}
-
-/**
-* FUNCTION: cleanup( clbk )
-*	Performs any cleanup tasks before the process exits.
-*
-* @private
-* @param {Function} clbk - callback to invoke once cleanup tasks are finished
-*/
-function cleanup( clbk ) {
-	request.stop();
-	if ( request.pending ) {
-		request.on( 'pending', onPending );
-	} else {
-		clbk();
-	}
-	function onPending( count ) {
-		if ( count === 0 ) {
-			clbk();
-		}
-	}
-}
-
-/**
-* FUNCTION: onCleanup( code )
-*	Encloses an exit code and returns a callback.
-*
-* @private
-* @param {Number} code - exit code
-* @returns {Function} callback
-*/
-function onCleanup( code ) {
-	/**
-	* FUNCTION: done()
-	*	Callback invoked once cleanup tasks are complete. Exits the process.
-	*
-	* @private
-	*/
-	return function done() {
-		process.exit( code );
-	};
 }
 
 
@@ -169,7 +74,7 @@ if ( args.version ) {
 
 // REQUEST //
 
-opts = require( './defaults.json' );
+opts = defaults;
 
 // Parse the URI and extract any query string parameters...
 if ( args._.length ) {
@@ -205,20 +110,21 @@ if ( args.accept ) {
 // Option to query for all paginated results:
 opts.all = args.all;
 
-// Option for polling the Github API...
-if ( args.interval ) {
-	opts.interval = parseFloat( args.interval );
-}
-// Create a new request instance:
-request = require( './../lib' )( opts );
+// Make a request to the Github API:
+request( opts, onResponse );
 
-// Add event listeners:
-request.on( 'error', onError );
-request.on( 'data', onData );
-
-// Only add signal listeners if we are polling a Github API endpoint...
-if ( opts.interval ) {
-	process.on( 'SIGTERM', sigterm );
-	process.on( 'SIGINT', sigint );
-	process.on( 'SIGHUP', sighup );
+/**
+* FUNCTION: onResponse( error, data )
+*	Callback invoked upon receiving a request response.
+*
+* @private
+* @param {Error|Null} error - error object
+* @param {Array[]} data - response data
+* @returns {Void}
+*/
+function onResponse( error, data ) {
+	if ( error ) {
+		throw error;
+	}
+	process.stdout.write( JSON.stringify( data ) );
 }

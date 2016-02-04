@@ -2,8 +2,7 @@
 	"string": [
 		"uri",
 		"token",
-		"accept",
-		"interval"
+		"accept"
 	],
 	"boolean": [
 		"help",

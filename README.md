@@ -361,7 +361,6 @@ Options:
          --token token         Github personal access token.
          --accept media_type   Github media type.
          --all                 Fetch all pages.
-         --interval ms         Poll interval (in milliseconds).
 ```
 
 ### Notes
