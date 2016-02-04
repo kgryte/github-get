@@ -344,14 +344,14 @@ Options:
 
 ### Examples
 
-Setting the personal access [token](https://github.com/settings/tokens/new) using the command-line option:
+Setting the personal access [token][github-token] using the command-line option:
 
 ``` bash
 $ ghget --token <token> --accept 'application/vnd.github.moondragon+json' --all 'https://api.github.com/user/repos'
 # => '[{..},{..},...]'
 ```
 
-Setting the personal access [token](https://github.com/settings/tokens/new) using an environment variable:
+Setting the personal access [token][github-token] using an environment variable:
 
 ``` bash
 $ GITHUB_TOKEN=<token> ghget --accept 'application/vnd.github.moondragon+json' --all 'https://api.github.com/user/repos'
