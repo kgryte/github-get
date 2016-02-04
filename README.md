@@ -274,7 +274,7 @@ __Note__: pending requests may result in `data` and other associated events bein
 ## Examples
 
 ``` javascript
-var createQuery = require( '@kgryte/github-get' );
+var request = require( '@kgryte/github-get' );
 
 var opts = {
 	'uri': 'https://api.github.com/user/repos',
@@ -287,43 +287,17 @@ var opts = {
 		'page': 1,
 		'per_page': 100
 	},
-	'all': true,
-	'interval': 10000 // every 10 seconds
+	'all': true
 };
 
-function onError( evt ) {
-	console.error( evt );
+request( opts, onResponse );
+
+function onResponse( error, data ) {
+	if ( error ) {
+		throw error;
+	}
+	console.log( JSON.stringify( data ) );
 }
-
-function onRequest( evt ) {
-	console.log( evt );
-}
-
-function onPage( evt ) {
-	var pct = evt.count / evt.total * 100;
-	console.log( 'Query %d progress: %d%.' , evt.qid, Math.round( pct ) );
-}
-
-function onData( evt ) {
-	console.log( evt.data );
-}
-
-function onEnd( evt ) {
-	console.log( 'Query %d ended...', evt.qid );
-	console.dir( evt.ratelimit );
-}
-
-var query = createQuery( opts );
-query.on( 'error', onError );
-query.on( 'request', onRequest );
-query.on( 'page', onPage );
-query.on( 'data', onData );
-query.on( 'end', onEnd );
-
-// Stop polling after 60 seconds...
-setTimeout( function stop() {
-	query.stop();
-}, 60000 );
 ```
 
 To run the example code from the top-level application directory,
@@ -332,7 +306,7 @@ To run the example code from the top-level application directory,
 $ node ./examples/index.js
 ```
 
-__Note__: in order to run the example, you will need to obtain a personal access [token](https://github.com/settings/tokens/new) and modify the `Authorization` header accordingly.
+__Note__: in order to run the example, you will need to obtain a personal access [token][github-token] and modify the `Authorization` header accordingly.
 
 
 
@@ -402,7 +376,7 @@ $ node ./bin/cli --token <token> 'https://api.github.com/user/repos'
 
 ### Unit
 
-Unit tests use the [Mocha](http://mochajs.org/) test framework with [Chai](http://chaijs.com) assertions. To run the tests, execute the following command in the top-level application directory:
+This repository uses [tape][tape] for unit tests. To run the tests, execute the following command in the top-level application directory:
 
 ``` bash
 $ make test
@@ -413,7 +387,7 @@ All new feature development should have corresponding unit tests to validate cor
 
 ### Test Coverage
 
-This repository uses [Istanbul](https://github.com/gotwarlost/istanbul) as its code coverage tool. To generate a test coverage report, execute the following command in the top-level application directory:
+This repository uses [Istanbul][istanbul] as its code coverage tool. To generate a test coverage report, execute the following command in the top-level application directory:
 
 ``` bash
 $ make test-cov
@@ -424,6 +398,23 @@ Istanbul creates a `./reports/coverage` directory. To access an HTML version of 
 ``` bash
 $ make view-cov
 ```
+
+
+### Browser Support
+
+This repository uses [Testling][testling] for browser testing. To run the tests in a (headless) local web browser, execute the following command in the top-level application directory:
+
+``` bash
+$ make test-browsers
+```
+
+To view the tests in a local web browser,
+
+``` bash
+$ make view-browser-tests
+```
+
+<!-- [![browser support][browsers-image]][browsers-url] -->
 
 
 ---
@@ -443,8 +434,8 @@ Copyright &copy; 2015-2016. Athan Reines.
 [build-image]: http://img.shields.io/travis/kgryte/github-get/master.svg
 [build-url]: https://travis-ci.org/kgryte/github-get
 
-[coverage-image]: https://img.shields.io/coveralls/kgryte/github-get/master.svg
-[coverage-url]: https://coveralls.io/r/kgryte/github-get?branch=master
+[coverage-image]: https://img.shields.io/codecov/c/github/kgryte/github-get/master.svg
+[coverage-url]: https://codecov.io/github/kgryte/github-get?branch=master
 
 [dependencies-image]: http://img.shields.io/david/kgryte/github-get.svg
 [dependencies-url]: https://david-dm.org/kgryte/github-get
@@ -454,3 +445,9 @@ Copyright &copy; 2015-2016. Athan Reines.
 
 [github-issues-image]: http://img.shields.io/github/issues/kgryte/github-get.svg
 [github-issues-url]: https://github.com/kgryte/github-get/issues
+
+[tape]: https://github.com/substack/tape
+[istanbul]: https://github.com/gotwarlost/istanbul
+[testling]: https://ci.testling.com
+
+[github-token]: https://github.com/settings/tokens/new
