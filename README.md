@@ -1,6 +1,6 @@
 Github Get
 ===
-[![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url] [![Dependencies][dependencies-image]][dependencies-url]
+[![NPM version][npm-image]][npm-url] [![Build Status][build-image]][build-url] [![Coverage Status][coverage-image]][coverage-url] [![Dependencies][dependencies-image]][dependencies-url]
 
 > Retrieves resources from a [Github API](https://developer.github.com/v3/) endpoint.
 
@@ -10,8 +10,6 @@ Github Get
 ``` bash
 $ npm install @kgryte/github-get
 ```
-
-For use in the browser, use [browserify](https://github.com/substack/node-browserify).
 
 
 ## Usage
@@ -444,11 +442,11 @@ Copyright &copy; 2015-2016. Athan Reines.
 [npm-image]: http://img.shields.io/npm/v/@kgryte/github-get.svg
 [npm-url]: https://npmjs.org/package/@kgryte/github-get
 
-[travis-image]: http://img.shields.io/travis/kgryte/github-get/master.svg
-[travis-url]: https://travis-ci.org/kgryte/github-get
+[build-image]: http://img.shields.io/travis/kgryte/github-get/master.svg
+[build-url]: https://travis-ci.org/kgryte/github-get
 
-[coveralls-image]: https://img.shields.io/coveralls/kgryte/github-get/master.svg
-[coveralls-url]: https://coveralls.io/r/kgryte/github-get?branch=master
+[coverage-image]: https://img.shields.io/coveralls/kgryte/github-get/master.svg
+[coverage-url]: https://coveralls.io/r/kgryte/github-get?branch=master
 
 [dependencies-image]: http://img.shields.io/david/kgryte/github-get.svg
 [dependencies-url]: https://david-dm.org/kgryte/github-get
