@@ -18,7 +18,7 @@ var data = require( './fixtures/results.json' );
 // TESTS //
 
 tape( 'file exports a function', function test( t ) {
-	t.ok( typeof request === 'function', 'main export is a function' );
+	t.equal( typeof request, 'function', 'main export is a function' );
 	t.end();
 });
 

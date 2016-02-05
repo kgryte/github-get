@@ -9,13 +9,13 @@ var ratelimit = require( './../lib/ratelimit.js' );
 // TESTS //
 
 tape( 'the main export is a function', function test( t ) {
-	t.ok( typeof ratelimit === 'function', 'main export is a function' );
+	t.equal( typeof ratelimit, 'function', 'main export is a function' );
 	t.end();
 });
 
 tape( 'the function returns an object', function test( t ) {
 	var headers = ratelimit( {} );
-	t.ok( typeof headers === 'object', 'returns an object' );
+	t.equal( typeof headers, 'object', 'returns an object' );
 	t.end();
 });
 

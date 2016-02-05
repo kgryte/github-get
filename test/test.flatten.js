@@ -9,7 +9,7 @@ var flatten = require( './../lib/flatten.js' );
 // TESTS //
 
 tape( 'the main export is a function', function test( t ) {
-	t.ok( typeof flatten === 'function', 'main export is a function' );
+	t.equal( typeof flatten, 'function', 'main export is a function' );
 	t.end();
 });
 

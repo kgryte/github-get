@@ -9,13 +9,13 @@ var getHeaders = require( './../lib/headers.js' );
 // TESTS //
 
 tape( 'the main export is a function', function test( t ) {
-	t.ok( typeof getHeaders === 'function', 'main export is a function' );
+	t.equal( typeof getHeaders, 'function', 'main export is a function' );
 	t.end();
 });
 
 tape( 'the function returns an object', function test( t ) {
 	var headers = getHeaders( {} );
-	t.ok( typeof headers === 'object', 'returns an object' );
+	t.equal( typeof headers, 'object', 'returns an object' );
 	t.end();
 });
 

@@ -21,7 +21,7 @@ function setup() {
 // TESTS //
 
 tape( 'the main export is a function', function test( t ) {
-	t.ok( typeof checklimit === 'function', 'main export is a function' );
+	t.equal( typeof checklimit, 'function', 'main export is a function' );
 	t.end();
 });
 
