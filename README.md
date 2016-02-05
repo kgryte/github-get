@@ -54,7 +54,7 @@ function onEnd( evt ) {
 }
 ```
 
-The `function` accepts the standard [request][http-request] options. The `function` also accepts the following additional `options`:
+The `function` accepts the standard HTTPS [request][http-request] options. The `function` also accepts the following additional `options`:
 
 -	__all__: `boolean` indicating if all [paginated][github-pagination] results should be resolved from an endpoint. By default, Github [paginates][github-pagination] results. Setting this option to `true` specifies that __all__ pages should be resolved. Default: `false`.
 
@@ -126,7 +126,7 @@ For [paginated][github-pagination] queries, each query maps to a particular page
 
 #### 'pending'
 
-A `request` instance emits a `pending` event anytime the number of pending queries changes. Listening to this event could be useful when wanting to gracefully end a process (e.g., allow all pending queries to finish before termination).
+A `request` instance emits a `pending` event anytime the number of pending queries changes. Listening to this event can be useful when wanting to gracefully end a process (e.g., allow all pending queries to finish before termination).
 
 ``` javascript
 function onPending( count ) {
@@ -140,7 +140,7 @@ req.on( 'pending', onPending );
 
 #### 'response'
 
-A `request` instance emits a `response` event upon successfully receiving an API response.
+A `request` instance emits a `response` event upon successfully receiving an initial API response.
 
 ``` javascript
 function onResponse( response ) {
@@ -194,7 +194,7 @@ A `page` event has the following properties:
 
 #### 'data'
 
-A `response` instance emits a `data` event after processing all `request` data. For `requests` involving [pagination][github-pagination], all data is concatenated into a single [JSON][json] `array`.
+A `response` instance emits a `data` event after processing all request data. For `requests` involving [pagination][github-pagination], all data is concatenated into a single [JSON][json] `array`.
 
 ``` javascript
 function onData( json ) {
@@ -207,7 +207,7 @@ response.on( 'data', onData );
 
 #### 'end'
 
-A `response` instance emits an `end` event once a `request` is finished resolving all queries. Of interest, the emitted event includes [rate limit][github-rate-limit] information, which could be useful for throttling repeated `requests`.
+A `response` instance emits an `end` event once a `request` is finished resolving all queries. The emitted event `object` includes [rate limit][github-rate-limit] information, which could be useful for throttling repeated `requests`.
 
 ``` javascript
 function onEnd( evt ) {
