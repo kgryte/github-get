@@ -207,7 +207,7 @@ response.on( 'data', onData );
 
 #### 'end'
 
-A `response` instance emits an `end` event once a `request` is finished resolving all queries. Of interest, the emitted event includes [rate limit][github-rate-limit] information, which could be useful for throttling multiple `requests`.
+A `response` instance emits an `end` event once a `request` is finished resolving all queries. Of interest, the emitted event includes [rate limit][github-rate-limit] information, which could be useful for throttling repeated `requests`.
 
 ``` javascript
 function onEnd( evt ) {
@@ -416,6 +416,7 @@ Copyright &copy; 2015-2016. Athan Reines.
 [istanbul]: https://github.com/gotwarlost/istanbul
 [testling]: https://ci.testling.com
 
+[json]: http://www.json.org/
 [http-request]: https://nodejs.org/api/http.html#http_http_request_options_callback
 [github-api]: https://developer.github.com/v3/
 [github-token]: https://github.com/settings/tokens/new
