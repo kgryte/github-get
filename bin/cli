@@ -99,15 +99,17 @@ opts.all = args.all;
 request( opts, onResponse );
 
 /**
-* FUNCTION: onResponse( error, data )
+* FUNCTION: onResponse( error, data, info )
 *	Callback invoked upon receiving a request response.
 *
 * @private
 * @param {Error|Null} error - error object
 * @param {Array[]} data - response data
+* @param {Object} info - rate limit info
 * @returns {Void}
 */
-function onResponse( error, data ) {
+function onResponse( error, data, info ) {
+	process.stderr.write( JSON.stringify( info ) );
 	if ( error ) {
 		throw error;
 	}
