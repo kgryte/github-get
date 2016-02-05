@@ -28,7 +28,7 @@ var opts;
 var req;
 
 opts = {
-	'uri': 'https://api.github.com/user/repos'	
+	'uri': 'https://api.github.com/user/repos?page=1&per_page=100'	
 };
 
 req = request( opts, onResponse );
@@ -96,22 +96,12 @@ function onError( evt ) {
 req.on( 'error', onError );
 ```
 
+An `error` event has the following properties:
+
+*	__beep__:
+*	__boop__:
+
 If an `error` handler is not registered, any encountered `errors` will be thrown.
-
-
-#### 'start'
-
-A `request` instance emits a `start` event prior to fetching resources a Github endpoint. Each `request` is assigned a unique identifier, which is emitted during this event.
-
-``` javascript
-function onStart( evt ) {
-	console.log( evt.rid );
-}
-
-req.on( 'start', onStart );
-```
-
-Listening on this event could be useful for `request` monitoring.
 
 
 #### 'query'
@@ -126,7 +116,25 @@ function onQuery( evt ) {
 req.on( 'query', onQuery );
 ```
 
+A `query` event has the following properties:
+
+*	__beep__:
+*	__boop__: 
+
 For [paginated][github-pagination] queries, each query maps to a particular page. The page identifier is specified by a query id `evt.qid`.
+
+
+#### 'pending'
+
+A `request` instance emits a `pending` event anytime the number of pending queries changes. Listening to this event could be useful when wanting to gracefully end a process (e.g., allow all pending queries to finish before termination).
+
+``` javascript
+function onPending( count ) {
+	console.log( '%d pending requests...', count );
+}
+
+req.on( 'pending', onPending );
+```
 
 
 
@@ -151,18 +159,7 @@ function onEnd( evt ) {
 req.on( 'response', onResponse );
 ```
 
-
-#### 'pending'
-
-A `request` instance emits a `pending` event anytime the number of pending queries changes. Listening to this event could be useful when wanting to gracefully end a process (e.g., allow all pending queries to finish before termination).
-
-``` javascript
-function onPending( count ) {
-	console.log( '%d pending requests...', count );
-}
-
-req.on( 'pending', onPending );
-```
+A `response` is itself an event emitter, as documented below.
 
 
 ===
@@ -188,10 +185,15 @@ function onPage( evt ) {
 response.on( 'page', onPage );
 ```
 
+A `page` event has the following properties:
+
+*	__beep__:
+*	__boop__:
+
 
 #### 'data'
 
-A `response` instance emits a `data` event after processing all `request` data. For `requests` involving [pagination][github-pagination], all data is concatenated into a single JSON `array`.
+A `response` instance emits a `data` event after processing all `request` data. For `requests` involving [pagination][github-pagination], all data is concatenated into a single [JSON][json] `array`.
 
 ``` javascript
 function onData( json ) {
@@ -214,6 +216,11 @@ function onEnd( evt ) {
 
 response.on( 'end', onEnd );
 ```
+
+An `end` event has the following properties:
+
+*	__beep__:
+*	__boop__:
 
 
 ---
