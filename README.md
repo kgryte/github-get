@@ -106,7 +106,7 @@ If an `error` handler is not registered, any encountered `errors` will be thrown
 
 #### 'query'
 
-A `request` instance emits a `query` event when making an HTTP request to a Github endpoint. If `opts.all` is `true`, a single request could be comprised of multiple queries. Each query will result in a `query` event.
+A `request` instance emits a `query` event when making an HTTP request to a Github endpoint. If `opts.all` is `true`, a single request could be comprised of multiple queries. Each query will have its own `query` event.
 
 ``` javascript
 function onQuery( evt ) {
@@ -122,20 +122,6 @@ A `query` event has the following properties:
 *	__boop__: 
 
 For [paginated][github-pagination] queries, each query maps to a particular page. The page identifier is specified by a query id `evt.qid`.
-
-
-#### 'pending'
-
-A `request` instance emits a `pending` event anytime the number of pending queries changes. Listening to this event can be useful when wanting to gracefully end a process (e.g., allow all pending queries to finish before termination).
-
-``` javascript
-function onPending( count ) {
-	console.log( '%d pending requests...', count );
-}
-
-req.on( 'pending', onPending );
-```
-
 
 
 #### 'response'
