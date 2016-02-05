@@ -59,7 +59,7 @@ The `function` accepts the standard [request][http-request] options. The `functi
 -	__all__: `boolean` indicating if all [paginated][github-pagination] results should be resolved from an endpoint. By default, Github [paginates][github-pagination] results. Setting this option to `true` specifies that __all__ pages should be resolved. Default: `false`.
 
 
-===
+---
 ## Request
 
 ### Attributes
@@ -159,10 +159,11 @@ function onEnd( evt ) {
 req.on( 'response', onResponse );
 ```
 
-A `response` is itself an event emitter, as documented below.
+A `response` is itself an event emitter, as documented [below][response].
 
 
-===
+---
+<a name="response"></a>
 ## Response
 
 ### Events
