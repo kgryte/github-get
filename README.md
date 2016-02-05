@@ -159,7 +159,7 @@ function onEnd( evt ) {
 req.on( 'response', onResponse );
 ```
 
-A `response` is itself an event emitter, as documented [below][response].
+A `response` is itself an event emitter, as documented [below](#response).
 
 
 ---
