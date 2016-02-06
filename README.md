@@ -18,7 +18,7 @@ $ npm install @kgryte/github-get
 var request = require( '@kgryte/github-get' );
 ```
 
-
+<a name="request"></a>
 #### request( [options,] clbk )
 
 Retrieves resources from a [Github API][github-api] endpoint.
@@ -53,7 +53,7 @@ The `function` accepts the following `options`:
 *	__accept__: [media type][github-media]. Default: `'application/vnd.github.moondragon+json'`.
 *	__useragent__: [user agent][github-user-agent] `string`.
 
-To specify a particular resource endpoint, set the `path` option.
+To specify a particular resource [endpoint][github-api], set the `path` option.
 
 ``` javascript
 var opts = {
@@ -76,6 +76,7 @@ request( opts, onResponse );
 By default, the `function` only requests a single [page][github-pagination] of results. To resolve multiple [pages][github-pagination], set the `last_page` option.
 
 ``` javascript
+// Resolves pages 2-5...
 var opts = {
 	'page': 2,
 	'last_page': 5
@@ -105,6 +106,33 @@ var opts = {
 
 request( opts, onResponse );
 ```
+
+
+#### request.factory( options, clbk )
+
+Creates a reusable `function`.
+
+``` javascript
+var opts = {
+	'path': '/user/repos',
+	'last_page': 'last',
+	'token': 'tkjorjk34ek3nj4!'
+};
+
+var get = request.factory( opts, clbk );
+
+get();
+get();
+get();
+// ...
+```
+
+The factory method accepts the same `options` as [`request()`](#request).
+
+
+## Notes
+
+*	If the module encounters an application-level `error` (e.g., no network connection, malformed request, etc), that `error` is returned immediately to the provided `callback`.
 
 
 ---
