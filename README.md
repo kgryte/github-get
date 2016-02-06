@@ -63,7 +63,7 @@ var opts = {
 request( opts, onResponse );
 ```
 
-To [authenticate][github-oauth2] with the endpoint, set the [`token`][github-token] option.
+To [authenticate][github-oauth2] with an endpoint, set the [`token`][github-token] option.
 
 ``` javascript
 var opts = {
@@ -169,7 +169,7 @@ To run the example code from the top-level application directory,
 $ node ./examples/index.js
 ```
 
-__Note__: in order to run the example, you will need to obtain a personal access [token][github-token] and modify the `Authorization` header accordingly.
+__Note__: in order to run the example, you will need to obtain a personal access [token][github-token] and modify the `token` option accordingly.
 
 
 
