@@ -32,7 +32,7 @@ tape( 'function throws an error if provided an invalid option', function test( t
 		factory( null, noop );
 	}
 	function bar() {
-		factory( {'all':'beep'}, noop );
+		factory( {'port':'beep'}, noop );
 	}
 });
 
