@@ -53,6 +53,59 @@ The `function` accepts the following `options`:
 *	__accept__: [media type][github-media]. Default: `'application/vnd.github.moondragon+json'`.
 *	__useragent__: [user agent][github-user-agent] `string`.
 
+To specify a particular resource endpoint, set the `path` option.
+
+``` javascript
+var opts = {
+	'path': '/user/repos'
+};
+
+request( opts, onResponse );
+```
+
+To [authenticate][github-oauth2] with the endpoint, set the [`token`][github-token] option.
+
+``` javascript
+var opts = {
+	'token': 'tkjorjk34ek3nj4!'
+};
+
+request( opts, onResponse );
+```
+
+By default, the `function` only requests a single [page][github-pagination] of results. To resolve multiple [pages][github-pagination], set the `last_page` option.
+
+``` javascript
+var opts = {
+	'page': 2,
+	'last_page': 5
+};
+
+request( opts, onResponse );
+```
+
+To specify that all [pages][github-pagination] beginning from `page` be resolved, set the `last_page` option to `'last'`.
+
+``` javascript
+// Resolve all pages...
+var opts = {
+	'page': 1,
+	'last_page': 'last'
+};
+
+request( opts, onResponse );
+```
+
+To specify a [user agent][github-user-agent], set the `useragent` option.
+
+``` javascript
+var opts = {
+	'useragent': 'hello-github!'
+};
+
+request( opts, onResponse );
+```
+
 
 ---
 ## Examples
@@ -246,6 +299,7 @@ Copyright &copy; 2015-2016. Athan Reines.
 
 [github-api]: https://developer.github.com/v3/
 [github-token]: https://github.com/settings/tokens/new
+[github-oauth2]: https://developer.github.com/v3/#oauth2-token-sent-in-a-header
 [github-media]: https://developer.github.com/v3/media/
 [github-user-agent]: https://developer.github.com/v3/#user-agent-required
 [github-pagination]: https://developer.github.com/guides/traversing-with-pagination/
