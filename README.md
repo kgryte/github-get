@@ -133,6 +133,10 @@ The factory method accepts the same `options` as [`request()`](#request).
 ## Notes
 
 *	If the module encounters an application-level `error` (e.g., no network connection, malformed request, etc), that `error` is returned immediately to the provided `callback`.
+*	[Rate limit][github-rate-limit] info includes the following:
+	-	__limit__: maximum number of requests a consumer is permitted to make per hour.
+	-	__remaining__: number of remaining requests.
+	-	__reset__: time at which current [rate limit][github-rate-limit] window resets in [UTC seconds][unix-time].
 
 
 ---
@@ -208,9 +212,9 @@ Options:
 
 ### Notes
 
-*	In addition to the command-line [`token`][github-token] option, the token may also be specified by a [`GITHUB_TOKEN`][github-token] environment variable. The command-line option __always__ takes precedence.
+*	In addition to the [`token`][github-token] option, the [token][github-token] may also be specified by a [`GITHUB_TOKEN`][github-token] environment variable. The command-line option __always__ takes precedence.
 *	Request resources are written to `stdout`.
-*	Rate limit information is written to `stderr`.
+*	[Rate limit][github-rate-limit] information is written to `stderr`.
 
 
 ### Examples
@@ -324,6 +328,7 @@ Copyright &copy; 2015-2016. Athan Reines.
 [json]: http://www.json.org/
 [http-request]: https://nodejs.org/api/http.html#http_http_request_options_callback
 [web-links]: http://tools.ietf.org/html/rfc5988
+[unix-time]: http://en.wikipedia.org/wiki/Unix_time
 
 [github-api]: https://developer.github.com/v3/
 [github-token]: https://github.com/settings/tokens/new
