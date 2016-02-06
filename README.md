@@ -21,7 +21,13 @@ var request = require( '@kgryte/github-get' );
 
 #### request( opts, clbk )
 
+Retrieves resources from a [Github API][github-api] endpoint.
 
+``` javascript
+request( )
+```
+
+The `function` accepts the following `options`:
 
 
 ---
@@ -30,6 +36,28 @@ var request = require( '@kgryte/github-get' );
 ``` javascript
 var request = require( '@kgryte/github-get' );
 
+var opts = {
+	'hostname': 'api.github.com',
+	'path': '/user/repos',
+	'headers': {
+		'User-Agent': 'my-unique-agent',
+		'Accept': 'application/vnd.github.moondragon+json',
+		'Authorization': 'token tkjorjk34ek3nj4!'
+	},
+	'last_page': 'last'
+};
+
+request( opts, onResponse );
+
+function onResponse( error, data, info ) {
+	if ( info ) {
+		console.error( info );
+	}
+	if ( error ) {
+		throw error;
+	}
+	console.log( data );
+}
 ```
 
 To run the example code from the top-level application directory,

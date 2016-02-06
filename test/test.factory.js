@@ -70,6 +70,50 @@ tape( 'function returns a function', function test( t ) {
 	t.end();
 });
 
+tape( 'if a `port` option is not specified and the protocol is `https`, the default port is `443`', function test( t ) {
+	var factory;
+	var opts;
+	var fcn;
+
+	factory = proxyquire( './../lib/factory.js', {
+		'./resolve.js': resolve
+	});
+
+	opts = getOpts();
+	opts.protocol = 'https';
+	delete opts.port;
+
+	fcn = factory( opts, noop );
+	fcn();
+
+	function resolve( opts ) {
+		t.equal( opts.port, 443, 'sets the default port to `443` for HTTPS' );
+		t.end();
+	}
+});
+
+tape( 'if a `port` option is not specified and the protocol is `http`, the default port is `80`', function test( t ) {
+	var factory;
+	var opts;
+	var fcn;
+
+	factory = proxyquire( './../lib/factory.js', {
+		'./resolve.js': resolve
+	});
+
+	opts = getOpts();
+	opts.protocol = 'http';
+	delete opts.port;
+
+	fcn = factory( opts, noop );
+	fcn();
+
+	function resolve( opts ) {
+		t.equal( opts.port, 80, 'sets the default port to `80` for HTTP' );
+		t.end();
+	}
+});
+
 tape( 'function returns a function which returns an error to a provided callback if an error is encountered when fetching resources', function test( t ) {
 	var factory;
 	var opts;
