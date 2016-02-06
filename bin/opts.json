@@ -1,13 +1,19 @@
 {
 	"string": [
-		"uri",
+		"protocol",
+		"hostname",
+		"port",
+		"path",
 		"token",
-		"accept"
+		"accept",
+		"useragent",
+		"page",
+		"last_page",
+		"per_page"
 	],
 	"boolean": [
 		"help",
-		"version",
-		"all"
+		"version"
 	],
 	"alias": {
 		"help": [
@@ -15,6 +21,12 @@
 		],
 		"version": [
 			"V"
+		],
+		"port": [
+			"p"
+		],
+		"useragent": [
+			"ua"
 		]
 	}
 }

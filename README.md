@@ -57,12 +57,29 @@ $ npm install -g @kgryte/github-get
 ### Usage
 
 ``` bash
+Usage: ghget [options] 
 
+Options:
+
+  -h,  --help               Print this message.
+  -V,  --version            Print the package version.
+       --protocol protocol  Request protocol. Default: https.
+       --hostname host      Hostname. Default: api.github.com.
+  -p,  --port port          Port. Default: 443 (https) or 80 (http).
+       --path path          Resource path. Default: '/'.
+       --token token        Github personal access token.
+       --accept media_type  Media type. Default: application/vnd.github.v3+json.
+  -ua, --useragent ua       User-agent.
+       --page page          Resource page. Default: 1.
+       --last_page page     Last resource page to resolve. Default: last.
+       --per_page size      Page size. Default: 100.
 ```
 
 ### Notes
 
 *	In addition to the command-line [`token`][github-token] option, the token may also be specified by a [`GITHUB_TOKEN`][github-token] environment variable. The command-line option __always__ takes precedence.
+*	Request resources are written to `stdout`.
+*	Rate limit information is written to `stderr`.
 
 
 ### Examples
@@ -70,27 +87,27 @@ $ npm install -g @kgryte/github-get
 Setting the personal access [token][github-token] using the command-line option:
 
 ``` bash
-$ DEBUG=* ghget --token <token> --accept 'application/vnd.github.moondragon+json' 'https://api.github.com/user/repos'
+$ DEBUG=* ghget --token <token> --path '/user/repos'
 # => '[{..},{..},...]'
 ```
 
 Setting the personal access [token][github-token] using an environment variable:
 
 ``` bash
-$ DEBUG=* GITHUB_TOKEN=<token> ghget --accept 'application/vnd.github.moondragon+json' 'https://api.github.com/user/repos'
+$ DEBUG=* GITHUB_TOKEN=<token> ghget --path '/user/repos'
 # => '[{...},{...},...]'
 ```
 
 For local installations, modify the command to point to the local installation directory; e.g., 
 
 ``` bash
-$ DEBUG=* ./node_modules/.bin/ghget --token <token> 'https://api.github.com/user/repos'
+$ DEBUG=* ./node_modules/.bin/ghget --token <token> --path '/user/repos'
 ```
 
 Or, if you have cloned this repository and run `npm install`, modify the command to point to the executable; e.g., 
 
 ``` bash
-$ DEBUG=* node ./bin/cli --token <token> 'https://api.github.com/user/repos'
+$ DEBUG=* node ./bin/cli --token <token> --path '/user/repos'
 ```
 
 
@@ -175,6 +192,8 @@ Copyright &copy; 2015-2016. Athan Reines.
 
 [json]: http://www.json.org/
 [http-request]: https://nodejs.org/api/http.html#http_http_request_options_callback
+[web-links]: http://tools.ietf.org/html/rfc5988
+
 [github-api]: https://developer.github.com/v3/
 [github-token]: https://github.com/settings/tokens/new
 [github-pagination]: https://developer.github.com/guides/traversing-with-pagination/

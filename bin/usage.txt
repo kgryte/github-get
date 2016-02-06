@@ -1,12 +1,18 @@
 
-Usage: ghget [options] (uri | --uri uri)
+Usage: ghget [options] 
 
 Options:
 
-  -h,    --help                Print this message.
-  -V,    --version             Print the package version.
-         --uri uri             Github URI.
-         --token token         Github personal access token.
-         --accept media_type   Github media type.
-         --all                 Fetch all pages.
+  -h,  --help               Print this message.
+  -V,  --version            Print the package version.
+       --protocol protocol  Request protocol. Default: https.
+       --hostname host      Hostname. Default: api.github.com.
+  -p,  --port port          Port. Default: 443 (https) or 80 (http).
+       --path path          Resource path. Default: '/'.
+       --token token        Github personal access token.
+       --accept media_type  Media type. Default: application/vnd.github.v3+json.
+  -ua, --useragent ua       User-agent.
+       --page page          Resource page. Default: 1.
+       --last_page page     Last resource page to resolve. Default: last.
+       --per_page size      Page size. Default: 100.   
 
