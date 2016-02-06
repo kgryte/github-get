@@ -38,6 +38,7 @@
     "request",
     "fetch",
     "retrieve",
+    "resolve",
     "api",
     "query",
     "cli",
@@ -47,18 +48,32 @@
   "bugs": {
     "url": "https://github.com/kgryte/github-get/issues"
   },
-  "dependencies": {},
+  "dependencies": {
+    "debug": "^2.2.0",
+    "parse-link-header": "^0.4.1",
+    "utils-json-parse": "^1.0.0",
+    "utils-merge2": "^1.0.0",
+    "validate.io-function": "^1.0.2",
+    "validate.io-nonnegative-integer": "^1.0.0",
+    "validate.io-object": "^1.0.4",
+    "validate.io-positive-integer": "^1.0.0",
+    "validate.io-string-primitive": "^1.0.0"
+  },
   "devDependencies": {
+    "@kgryte/noop": "^1.0.0",
     "browserify": "12.x.x",
+    "chai": "3.x.x",
     "codecov": "1.x.x",
     "istanbul": "^0.4.1",
     "jshint": "2.x.x",
     "jshint-stylish": "2.x.x",
+    "proxyquire": "^1.7.4",
     "proxyquire-universal": "^1.0.8",
-    "proxyquireify": "^3.0.1",
+    "proxyquireify": "^3.1.1",
     "tap-spec": "4.x.x",
     "tape": "4.x.x",
-    "testling": "1.x.x"
+    "testling": "1.x.x",
+    "utils-copy": "^1.1.0"
   },
   "testling": {
     "files": [
