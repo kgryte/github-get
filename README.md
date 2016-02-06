@@ -19,12 +19,26 @@ var request = require( '@kgryte/github-get' );
 ```
 
 
-#### request( opts, clbk )
+#### request( [options,] clbk )
 
 Retrieves resources from a [Github API][github-api] endpoint.
 
 ``` javascript
-request( )
+request( onResponse );
+
+function onResponse( error, data, info ) {
+	// Check for rate limit info...
+	if ( info ) {
+		console.error( 'Limit: %d', info.limit );
+		console.error( 'Remaining: %d', info.remaining );
+		console.error( 'Reset: %s', (new Date( info.reset )).toString() );
+	}
+	if ( error ) {
+		throw error;
+	}
+	console.log( JSON.stringify( data ) );
+	// returns <response_data>
+}
 ```
 
 The `function` accepts the following `options`:
