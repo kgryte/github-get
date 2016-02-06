@@ -19,195 +19,9 @@ var request = require( '@kgryte/github-get' );
 ```
 
 
-#### request( opts[, clbk] )
+#### request( opts, clbk )
 
-Returns a `request` instance which fetches resources from a [Github API][github-api] endpoint.
 
-``` javascript
-var opts;
-var req;
-
-opts = {
-	'uri': 'https://api.github.com/user/repos?page=1&per_page=100'	
-};
-
-req = request( opts, onResponse );
-req.on( 'error', onError );
-
-function onError( error ) {
-	throw error;
-}
-
-function onResponse( response ) {
-	response.on( 'data', onData );
-	response.on( 'end', onEnd );
-}
-
-function onData( data ) {
-	console.log( data );
-	// returns [{...},{...},...]
-}
-
-function onEnd( evt ) {
-	console.log( evt );
-	// returns {...}
-}
-```
-
-The `function` accepts the standard HTTPS [request][http-request] options. The `function` also accepts the following additional `options`:
-
--	__all__: `boolean` indicating if all [paginated][github-pagination] results should be resolved from an endpoint. By default, Github [paginates][github-pagination] results. Setting this option to `true` specifies that __all__ pages should be resolved. Default: `false`.
-
-
----
-## Request
-
-### Attributes
-
-A `request` instance has the following attributes...
-
-
-#### req.pending
-
-__Read-only__ attribute providing the number of pending API [page][github-pagination] requests.
-
-``` javascript
-if ( req.pending ) {
-	console.log( '%d page requests still pending...', req.pending );
-}
-```
-
-
-===
-### Events
-
-A `request` instance emits the following events...
-
-
-#### 'error'
-
-A `request` instance emits an `error` event whenever a request error occurs. To capture `errors`,
-
-``` javascript
-function onError( evt ) {
-	console.error( evt );
-}
-
-req.on( 'error', onError );
-```
-
-An `error` event has the following properties:
-
-*	__beep__:
-*	__boop__:
-
-If an `error` handler is not registered, any encountered `errors` will be thrown.
-
-
-#### 'query'
-
-A `request` instance emits a `query` event when making an HTTP request to a Github endpoint. If `opts.all` is `true`, a single request could be comprised of multiple queries. Each query will have its own `query` event.
-
-``` javascript
-function onQuery( evt ) {
-	console.log( evt );
-}
-
-req.on( 'query', onQuery );
-```
-
-A `query` event has the following properties:
-
-*	__beep__:
-*	__boop__: 
-
-For [paginated][github-pagination] queries, each query maps to a particular page. The page identifier is specified by a query id `evt.qid`.
-
-
-#### 'response'
-
-A `request` instance emits a `response` event upon successfully receiving an initial API response.
-
-``` javascript
-function onResponse( response ) {
-	response.on( 'data', onData );
-	response.on( 'end', onEnd );
-}
-
-function onData( data ) {
-	console.log( data );
-}
-
-function onEnd( evt ) {
-	console.log( evt );
-}
-
-req.on( 'response', onResponse );
-```
-
-A `response` is itself an event emitter, as documented [below](#response).
-
-
----
-<a name="response"></a>
-## Response
-
-### Events
-
-A `response` instance emits the following events...
-
-
-#### 'page'
-
-A `response` instance emits a `page` event upon receiving a [paginated][github-pagination] response.
-
-``` javascript
-function onPage( evt ) {
-	console.log( 'Query id: %d.', evt.qid );
-	console.log( 'Page number: %d.', evt.page );
-	console.log( 'Page %d of %d.', evt.count, evt.total );
-	console.log( evt.data );
-}
-
-response.on( 'page', onPage );
-```
-
-A `page` event has the following properties:
-
-*	__beep__:
-*	__boop__:
-
-
-#### 'data'
-
-A `response` instance emits a `data` event after processing all request data. For `requests` involving [pagination][github-pagination], all data is concatenated into a single [JSON][json] `array`.
-
-``` javascript
-function onData( json ) {
-	console.log( json );
-}
-
-response.on( 'data', onData );
-```
-
-
-#### 'end'
-
-A `response` instance emits an `end` event once a `request` is finished resolving all queries. The emitted event `object` includes [rate limit][github-rate-limit] information, which could be useful for throttling repeated `requests`.
-
-``` javascript
-function onEnd( evt ) {
-	console.log( 'Rate limit info...' );
-	console.dir( evt.ratelimit );
-}
-
-response.on( 'end', onEnd );
-```
-
-An `end` event has the following properties:
-
-*	__beep__:
-*	__boop__:
 
 
 ---
@@ -216,40 +30,6 @@ An `end` event has the following properties:
 ``` javascript
 var request = require( '@kgryte/github-get' );
 
-var opts;
-var req;
-
-opts = {
-	'uri': 'https://api.github.com/user/repos?page=1&per_page=100',
-	'headers': {
-		'User-Agent': 'my-unique-agent',
-		'Accept': 'application/vnd.github.moondragon+json',
-		'Authorization': 'token tkjorjk34ek3nj4!'
-	},
-	'all': true
-};
-
-req = request( opts, onResponse );
-req.on( 'error', onError );
-
-function onError( error ) {
-	throw error;
-}
-
-function onResponse( response ) {
-	response.on( 'data', onData );
-	response.on( 'end', onEnd );
-}
-
-function onData( data ) {
-	console.log( data );
-	// returns [{...},{...},...]
-}
-
-function onEnd( evt ) {
-	console.log( evt );
-	// returns {...}
-}
 ```
 
 To run the example code from the top-level application directory,
@@ -277,16 +57,7 @@ $ npm install -g @kgryte/github-get
 ### Usage
 
 ``` bash
-Usage: ghget [options] (uri | --uri uri)
 
-Options:
-
-  -h,    --help                Print this message.
-  -V,    --version             Print the package version.
-         --uri uri             Github URI.
-         --token token         Github personal access token.
-         --accept media_type   Github media type.
-         --all                 Fetch all pages.
 ```
 
 ### Notes
@@ -299,14 +70,14 @@ Options:
 Setting the personal access [token][github-token] using the command-line option:
 
 ``` bash
-$ DEBUG=* ghget --token <token> --accept 'application/vnd.github.moondragon+json' --all 'https://api.github.com/user/repos'
+$ DEBUG=* ghget --token <token> --accept 'application/vnd.github.moondragon+json' 'https://api.github.com/user/repos'
 # => '[{..},{..},...]'
 ```
 
 Setting the personal access [token][github-token] using an environment variable:
 
 ``` bash
-$ DEBUG=* GITHUB_TOKEN=<token> ghget --accept 'application/vnd.github.moondragon+json' --all 'https://api.github.com/user/repos'
+$ DEBUG=* GITHUB_TOKEN=<token> ghget --accept 'application/vnd.github.moondragon+json' 'https://api.github.com/user/repos'
 # => '[{...},{...},...]'
 ```
 
