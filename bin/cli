@@ -9,7 +9,6 @@ var parseArgs = require( 'minimist' );
 var notifier = require( 'update-notifier' );
 var pkg = require( './../package.json' );
 var opts = require( './opts.json' );
-var defaults = require( './defaults.json' );
 var request = require( './../lib' );
 
 
@@ -67,15 +66,41 @@ if ( args.version ) {
 
 // OPTIONS //
 
-opts = defaults;
+opts = {};
 
-// Endpoint URI...
-if ( args._.length ) {
-	opts.uri = args._[ 0 ];
-} else {
-	opts.uri = args.uri;
+if ( args.protocol ) {
+	opts.protocol = args.protocol;
 }
-
+if ( args.hostname ) {
+	opts.hostname = args.hostname;
+}
+if ( args.port ) {
+	opts.port = parseInt( args.port, 10 );
+}
+if ( args.path ) {
+	opts.path = args.path;
+}
+if ( args.page ) {
+	opts.page = parseInt( args.page, 10 );
+}
+if ( args.last_page ) {
+	if ( args.last_page === 'last' ) {
+		opts.last_page = 'last';
+	} else {
+		opts.last_page = parseInt( args.last_page, 10 );
+	}
+}
+if ( args.per_page ) {
+	opts.per_page = parseInt( args.per_page, 10 );
+}
+if ( args.accept ) {
+	opts.headers = opts.headers || {};
+	opts.headers.Accept = args.accept;
+}
+if ( args.useragent ) {
+	opts.headers = opts.headers || {};
+	opts.headers.useragent = args.useragent;
+}
 // Set the authorization token...
 if ( args.token ) {
 	token = args.token;
@@ -84,14 +109,9 @@ else if ( process.env.GITHUB_TOKEN ) {
 	token = process.env.GITHUB_TOKEN;
 }
 if ( token ) {
+	opts.headers = opts.headers || {};
 	opts.headers.Authorization = 'token ' + token;
 }
-// If a special media type has been provided, set the `Accept` header...
-if ( args.accept ) {
-	opts.headers.Accept = args.accept;
-}
-// Option to query for all paginated results:
-opts.all = args.all;
 
 
 // REQUEST //
@@ -109,7 +129,9 @@ request( opts, onResponse );
 * @returns {Void}
 */
 function onResponse( error, data, info ) {
-	process.stderr.write( JSON.stringify( info ) );
+	if ( info ) {
+		process.stderr.write( JSON.stringify( info ) );
+	}
 	if ( error ) {
 		throw error;
 	}
