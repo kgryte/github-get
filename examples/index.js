@@ -5,13 +5,12 @@ var request = require( './../lib' );
 var opts = {
 	'hostname': 'api.github.com',
 	'path': '/user/repos',
-	'headers': {
-		'User-Agent': 'my-unique-agent',
-		'Accept': 'application/vnd.github.moondragon+json',
+	'useragent': 'my-unique-agent',
+	'accept': 'application/vnd.github.moondragon+json',
 
-		// INSERT TOKEN HERE //
-		'Authorization': 'token <your_token_goes_here>'
-	},
+	// INSERT TOKEN HERE //
+	'token': '<your_token_goes_here>',
+	
 	'last_page': 'last'
 };
 

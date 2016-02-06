@@ -47,7 +47,7 @@ The `function` accepts the following `options`:
 *	__port__: endpoint port. Default: `443` (https) or `80` (http).
 *	__path__: resource [path][github-api]; e.g., `/user/repos`. Default: `'/'`.
 *	__page__: resource [page][github-pagination]. Default: `1`.
-*	__last_page__: last resource page. If provided, the `function` will use [link headers][web-links] to resolve all pages starting from `options.page`. Default: `1`.
+*	__last_page__: last resource page. If provided, the `function` will use [link headers][web-links] to resolve all pages starting from `page`. Default: `1`.
 *	__per_page__: page size. Default: `100`.
 *	__token__: Github personal [access token][github-token].
 *	__accept__: [media type][github-media]. Default: `'application/vnd.github.moondragon+json'`.
@@ -63,11 +63,9 @@ var request = require( '@kgryte/github-get' );
 var opts = {
 	'hostname': 'api.github.com',
 	'path': '/user/repos',
-	'headers': {
-		'User-Agent': 'my-unique-agent',
-		'Accept': 'application/vnd.github.moondragon+json',
-		'Authorization': 'token tkjorjk34ek3nj4!'
-	},
+	'useragent': 'my-unique-agent',
+	'accept': 'application/vnd.github.moondragon+json',
+	'token': 'tkjorjk34ek3nj4!',
 	'last_page': 'last'
 };
 
