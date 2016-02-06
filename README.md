@@ -31,7 +31,7 @@ function onResponse( error, data, info ) {
 	if ( info ) {
 		console.error( 'Limit: %d', info.limit );
 		console.error( 'Remaining: %d', info.remaining );
-		console.error( 'Reset: %s', (new Date( info.reset )).toString() );
+		console.error( 'Reset: %s', (new Date( info.reset*1000 )).toISOString() );
 	}
 	if ( error ) {
 		throw error;
