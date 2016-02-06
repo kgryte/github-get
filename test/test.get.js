@@ -108,3 +108,32 @@ tape( 'function returns rate limit info to a provided callback', function test( 
 		t.end();
 	}
 });
+
+tape( 'function does not require options', function test( t ) {
+	var expected;
+	var get;
+	
+	get = proxyquire( './../lib/get.js', {
+		'./factory.js': factory
+	});
+
+	expected = data;
+
+	get( done );
+
+	function factory( opts, clbk ) {
+		assert.deepEqual( opts, {}, 'empty object' );
+		return function get() {
+			setTimeout( onTimeout, 0 );
+			function onTimeout() {
+				clbk( null, data, info );
+			}
+		};
+	}
+
+	function done( error, data ) {
+		assert.deepEqual( data, expected );
+		t.ok( true, 'deep equal' );
+		t.end();
+	}
+});

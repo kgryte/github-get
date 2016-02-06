@@ -88,3 +88,24 @@ tape( 'if the reset time is the same and the header indicates fewer remaining re
 	t.deepEqual( ratelimit, expected, 'updates the number of remaining requests' );
 	t.end();
 });
+
+tape( 'if a header contains an outdated remaining limit (e.g., due to a request arriving out-of-order), the function does nothing', function test( t ) {
+	var ratelimit;
+	var expected;
+	var headers;
+
+	ratelimit = setup();
+
+	headers = {
+		'x-ratelimit-reset': ratelimit.reset.toString(),
+		'x-ratelimit-remaining': (ratelimit.remaining+2).toString(),
+		'x-ratelimit-limit': '5000'
+	};
+
+	expected = copy( ratelimit );
+
+	checklimit( ratelimit, headers );
+
+	t.deepEqual( ratelimit, expected, 'does not update rate limit information' );
+	t.end();
+});
