@@ -45,7 +45,7 @@ The `function` accepts the following `options`:
 *	__protocol__: request protocol. Default: `'https'`.
 *	__hostname__: endpoint hostname. Default: `'api.github.com'`.
 *	__port__: endpoint port. Default: `443` (https) or `80` (http).
-*	__path__: resource [path][github-api]; e.g., `/user/repos`. Default: `'/'`.
+*	__pathname__: resource [pathname][github-api]; e.g., `/user/repos`. Default: `'/'`.
 *	__page__: resource [page][github-pagination]. Default: `1`.
 *	__last_page__: last resource page. If provided, the `function` will use [link headers][web-links] to resolve all pages starting from `page`. Default: `1`.
 *	__per_page__: page size. Default: `100`.
@@ -53,11 +53,11 @@ The `function` accepts the following `options`:
 *	__accept__: [media type][github-media]. Default: `'application/vnd.github.moondragon+json'`.
 *	__useragent__: [user agent][github-user-agent] `string`.
 
-To specify a particular resource [endpoint][github-api], set the `path` option.
+To specify a particular resource [endpoint][github-api], set the `pathname` option.
 
 ``` javascript
 var opts = {
-	'path': '/user/repos'
+	'pathname': '/user/repos'
 };
 
 request( opts, onResponse );
@@ -114,7 +114,7 @@ Creates a reusable `function`.
 
 ``` javascript
 var opts = {
-	'path': '/user/repos',
+	'pathname': '/user/repos',
 	'last_page': 'last',
 	'token': 'tkjorjk34ek3nj4!'
 };
@@ -147,7 +147,7 @@ var request = require( '@kgryte/github-get' );
 
 var opts = {
 	'hostname': 'api.github.com',
-	'path': '/user/repos',
+	'pathname': '/user/repos',
 	'useragent': 'my-unique-agent',
 	'accept': 'application/vnd.github.moondragon+json',
 	'token': 'tkjorjk34ek3nj4!',
@@ -201,7 +201,7 @@ Options:
        --protocol protocol  Request protocol. Default: https.
        --hostname host      Hostname. Default: api.github.com.
   -p,  --port port          Port. Default: 443 (https) or 80 (http).
-       --path path          Resource path. Default: '/'.
+       --pathname pathname  Resource pathname. Default: '/'.
        --token token        Github personal access token.
        --accept media_type  Media type. Default: application/vnd.github.v3+json.
   -ua, --useragent ua       User-agent.
@@ -222,27 +222,27 @@ Options:
 Setting the personal access [token][github-token] using the command-line option:
 
 ``` bash
-$ DEBUG=* ghget --token <token> --path '/user/repos'
+$ DEBUG=* ghget --token <token> --pathname '/user/repos'
 # => '[{..},{..},...]'
 ```
 
 Setting the personal access [token][github-token] using an environment variable:
 
 ``` bash
-$ DEBUG=* GITHUB_TOKEN=<token> ghget --path '/user/repos'
+$ DEBUG=* GITHUB_TOKEN=<token> ghget --pathname '/user/repos'
 # => '[{...},{...},...]'
 ```
 
 For local installations, modify the command to point to the local installation directory; e.g., 
 
 ``` bash
-$ DEBUG=* ./node_modules/.bin/ghget --token <token> --path '/user/repos'
+$ DEBUG=* ./node_modules/.bin/ghget --token <token> --pathname '/user/repos'
 ```
 
 Or, if you have cloned this repository and run `npm install`, modify the command to point to the executable; e.g., 
 
 ``` bash
-$ DEBUG=* node ./bin/cli --token <token> --path '/user/repos'
+$ DEBUG=* node ./bin/cli --token <token> --pathname '/user/repos'
 ```
 
 

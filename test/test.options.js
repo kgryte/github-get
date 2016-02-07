@@ -13,7 +13,7 @@ function setup() {
 		'method': 'GET',
 		'protocol': 'http',
 		'hostname': 'beep.com',
-		'path': '/api/v3/user/repos',
+		'pathname': '/api/v3/user/repos',
 		'port': 80,
 		'useragent': 'beep-boop',
 		'accept': 'application/vnd.github.v3+json',

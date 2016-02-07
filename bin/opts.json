@@ -3,7 +3,7 @@
 		"protocol",
 		"hostname",
 		"port",
-		"path",
+		"pathname",
 		"token",
 		"accept",
 		"useragent",

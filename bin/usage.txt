@@ -8,7 +8,7 @@ Options:
        --protocol protocol  Request protocol. Default: https.
        --hostname host      Hostname. Default: api.github.com.
   -p,  --port port          Port. Default: 443 (https) or 80 (http).
-       --path path          Resource path. Default: '/'.
+       --pathname pathname  Resource pathname. Default: '/'.
        --token token        Github personal access token.
        --accept media_type  Media type. Default: application/vnd.github.v3+json.
   -ua, --useragent ua       User-agent.

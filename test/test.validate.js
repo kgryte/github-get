@@ -136,7 +136,7 @@ tape( 'if provided a `port` option which is not a nonnegative integer, the funct
 	t.end();
 });
 
-tape( 'if provided a `path` option which is not a primitive string, the function returns a type error', function test( t ) {
+tape( 'if provided a `pathname` option which is not a primitive string, the function returns a type error', function test( t ) {
 	var values;
 	var err;
 	var i;
@@ -154,7 +154,7 @@ tape( 'if provided a `path` option which is not a primitive string, the function
 
 	for ( i = 0; i < values.length; i++ ) {
 		err = validate( {}, {
-			'path': values[i]
+			'pathname': values[i]
 		});
 		t.ok( err instanceof TypeError, 'returns type error when provided ' + values[i] );
 	}
@@ -324,7 +324,7 @@ tape( 'the function returns `null` if all options are valid', function test( t )
 		'protocol': 'http',
 		'hostname': 'beep.com',
 		'port': 8080,
-		'path': '/api/v3',
+		'pathname': '/api/v3',
 		'page': 2,
 		'last_page': 5,
 		'per_page': 30,

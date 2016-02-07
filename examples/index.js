@@ -4,7 +4,7 @@ var request = require( './../lib' );
 
 var opts = {
 	'hostname': 'api.github.com',
-	'path': '/user/repos',
+	'pathname': '/user/repos',
 	'useragent': 'my-unique-agent',
 	'accept': 'application/vnd.github.moondragon+json',
 

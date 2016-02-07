@@ -77,8 +77,8 @@ if ( args.hostname ) {
 if ( args.port ) {
 	opts.port = parseInt( args.port, 10 );
 }
-if ( args.path ) {
-	opts.path = args.path;
+if ( args.pathname ) {
+	opts.pathname = args.pathname;
 }
 if ( args.page ) {
 	opts.page = parseInt( args.page, 10 );
