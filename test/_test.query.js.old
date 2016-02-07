@@ -5,19 +5,10 @@ var mpath = './../lib/query.js';
 
 // MODULES //
 
-var // Expectation library:
-	chai = require( 'chai' ),
-
-	// Module for intercepting HTTP requests:
+var chai = require( 'chai' ),
 	nock = require( 'nock' ),
-
-	// Deep copy:
 	copy = require( 'utils-copy' ),
-
-	// Query class instance:
 	createQuery = require( './../lib' ),
-
-	// Module to be tested:
 	query = require( mpath );
 
 
