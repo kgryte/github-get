@@ -90,7 +90,6 @@ To specify that all [pages][github-pagination] beginning from `page` be resolved
 ``` javascript
 // Resolve all pages...
 var opts = {
-	'page': 1,
 	'last_page': 'last'
 };
 
