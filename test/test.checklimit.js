@@ -29,6 +29,7 @@ tape( 'if a header contains an old reset time, the function does nothing', funct
 	var ratelimit;
 	var expected;
 	var headers;
+	var actual;
 
 	ratelimit = setup();
 
@@ -39,9 +40,9 @@ tape( 'if a header contains an old reset time, the function does nothing', funct
 	};
 
 	expected = copy( ratelimit );
-	checklimit( ratelimit, headers );
+	actual = checklimit( ratelimit, headers );
 
-	t.deepEqual( ratelimit, expected, 'does not update rate limit information' );
+	t.deepEqual( actual, expected, 'does not update rate limit information' );
 	t.end();
 });
 
@@ -49,6 +50,7 @@ tape( 'if provided a header containing a new reset time, the function will updat
 	var ratelimit;
 	var expected;
 	var headers;
+	var actual;
 
 	ratelimit = setup();
 
@@ -62,8 +64,8 @@ tape( 'if provided a header containing a new reset time, the function will updat
 	expected.remaining = +headers[ 'x-ratelimit-remaining' ];
 	expected.reset = +headers[ 'x-ratelimit-reset' ];
 
-	checklimit( ratelimit, headers );
-	t.deepEqual( ratelimit, expected, 'updates the reset time and remaining request limit' );
+	actual = checklimit( ratelimit, headers );
+	t.deepEqual( actual, expected, 'updates the reset time and remaining request limit' );
 	t.end();
 });
 
@@ -71,6 +73,7 @@ tape( 'if the reset time is the same and the header indicates fewer remaining re
 	var ratelimit;
 	var expected;
 	var headers;
+	var actual;
 
 	ratelimit = setup();
 
@@ -83,9 +86,9 @@ tape( 'if the reset time is the same and the header indicates fewer remaining re
 	expected = copy( ratelimit );
 	expected.remaining = +headers[ 'x-ratelimit-remaining' ];
 
-	checklimit( ratelimit, headers );
+	actual = checklimit( ratelimit, headers );
 
-	t.deepEqual( ratelimit, expected, 'updates the number of remaining requests' );
+	t.deepEqual( actual, expected, 'updates the number of remaining requests' );
 	t.end();
 });
 
@@ -93,6 +96,7 @@ tape( 'if a header contains an outdated remaining limit (e.g., due to a request 
 	var ratelimit;
 	var expected;
 	var headers;
+	var actual;
 
 	ratelimit = setup();
 
@@ -104,8 +108,8 @@ tape( 'if a header contains an outdated remaining limit (e.g., due to a request 
 
 	expected = copy( ratelimit );
 
-	checklimit( ratelimit, headers );
+	actual = checklimit( ratelimit, headers );
 
-	t.deepEqual( ratelimit, expected, 'does not update rate limit information' );
+	t.deepEqual( actual, expected, 'does not update rate limit information' );
 	t.end();
 });
