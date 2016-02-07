@@ -127,10 +127,10 @@ request( opts, onResponse );
 */
 function onResponse( error, data, info ) {
 	if ( info ) {
-		process.stderr.write( JSON.stringify( info ) );
+		process.stderr.write( JSON.stringify( info ) + '\n' );
 	}
 	if ( error ) {
 		throw error;
 	}
-	process.stdout.write( JSON.stringify( data ) );
+	process.stdout.write( JSON.stringify( data ) + '\n' );
 }
