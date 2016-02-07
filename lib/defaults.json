@@ -3,11 +3,9 @@
 	"hostname": "api.github.com",
 	"port": null,
 	"path": "/",
-	"headers": {
-		"User-Agent": "https://github.com/kgryte/github-get",
-		"Accept": "application/vnd.github.v3+json"
-	},
 	"page": 1,
 	"last_page": 1,
-	"per_page": 100
+	"per_page": 100,
+	"useragent": "https://github.com/kgryte/github-get",
+	"accept": "application/vnd.github.v3+json"
 }
