@@ -44,7 +44,7 @@ tape( 'the function sets the HTTP request method to `GET`', function test( t ) {
 tape( 'the function sets the HTTP request protocol', function test( t ) {
 	var opts = setup();
 	var out = options( opts );
-	t.equal( out.protocol, opts.protocol, 'request protocol set protocol option' );
+	t.equal( out.protocol, opts.protocol+':', 'request protocol set protocol option' );
 	t.end();
 });
 
