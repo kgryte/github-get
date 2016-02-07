@@ -3,17 +3,17 @@
 // MODULES //
 
 var tape = require( 'tape' );
-var counts = require( './../lib' );
+var request = require( './../lib' );
 
 
 // TESTS //
 
 tape( 'main export is a function', function test( t ) {
-	t.equal( typeof counts, 'function', 'main export is a function' );
+	t.equal( typeof request, 'function', 'main export is a function' );
 	t.end();
 });
 
 tape( 'module exports a factory method', function test( t ) {
-	t.equal( typeof counts.factory, 'function', 'export includes a factory method' );
+	t.equal( typeof request.factory, 'function', 'export includes a factory method' );
 	t.end();
 });
