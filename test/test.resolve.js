@@ -42,7 +42,16 @@ function request( error, headers, body ) {
 	function req1( opts, clbk ) {
 		setTimeout( onTimeout, 0 );
 		function onTimeout() {
-			clbk( error );
+			var err;
+			if ( error instanceof Error ) {
+				err = {
+					'status': 500,
+					'message': error.message
+				};
+			} else {
+				err = error;
+			}
+			clbk( err );
 		}
 	}
 	function req2( opts, clbk ) {
@@ -73,8 +82,25 @@ tape( 'the main export is a function', function test( t ) {
 });
 
 tape( 'if an initial request encounters an application error, the error is returned to the provided callback', function test( t ) {
-	t.ok( false );
-	t.end();
+	var resolve;
+	var mock;
+	var err;
+
+	err = new Error( 'ENOTFOUND' );
+
+	mock = request( err );
+
+	resolve = proxyquire( './../lib/resolve.js', {
+		'./request.js': mock
+	});
+
+	resolve( options(), done );
+
+	function done( error ) {
+		t.equal( error.status, 500, '500 status' );
+		t.equal( error.message, err.message, 'equal message' );
+		t.end();
+	}
 });
 
 tape( 'if a paginated request encounters an application error, the error is returned to the provided callback with rate limit information', function test( t ) {
