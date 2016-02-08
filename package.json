@@ -70,6 +70,7 @@
     "istanbul": "^0.4.1",
     "jshint": "2.x.x",
     "jshint-stylish": "2.x.x",
+    "math-round": "^1.0.0",
     "proxyquire": "^1.7.4",
     "proxyquire-universal": "^1.0.8",
     "proxyquireify": "^3.1.1",
