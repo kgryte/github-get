@@ -131,9 +131,9 @@ The factory method accepts the same `options` as [`request()`](#request).
 
 ## Notes
 
-*	If the module encounters an application-level `error` (e.g., no network connection, malformed request, etc), that `error` is returned immediately to the provided `callback`.
-* 	The `function` will honor the `last_page` option as long as the value does __not__ exceed the maximum number of available [pages][github-pagination].
-*	[Rate limit][github-rate-limit] info includes the following:
+*	If the module encounters an application-level `error` while __initially__ querying an endpoint (e.g., no network connection, malformed request, etc), that `error` is returned immediately to the provided `callback`.
+* 	The `function` will honor the `last_page` option as long as the option value does __not__ exceed the maximum number of available [pages][github-pagination].
+*	[Rate limit][github-rate-limit] information includes the following:
 	-	__limit__: maximum number of requests a consumer is permitted to make per hour.
 	-	__remaining__: number of remaining requests.
 	-	__reset__: time at which the current [rate limit][github-rate-limit] window resets in [UTC seconds][unix-time].
