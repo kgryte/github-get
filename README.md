@@ -223,7 +223,7 @@ Setting the personal access [token][github-token] using the command-line option:
 
 ``` bash
 $ DEBUG=* ghget --token <token> --pathname '/user/repos'
-# => '[{..},{..},...]'
+# => '[{...},{...},...]'
 ```
 
 Setting the personal access [token][github-token] using an environment variable:
@@ -237,12 +237,14 @@ For local installations, modify the command to point to the local installation d
 
 ``` bash
 $ DEBUG=* ./node_modules/.bin/ghget --token <token> --pathname '/user/repos'
+# => '[{...},{...},...]'
 ```
 
 Or, if you have cloned this repository and run `npm install`, modify the command to point to the executable; e.g., 
 
 ``` bash
 $ DEBUG=* node ./bin/cli --token <token> --pathname '/user/repos'
+# => '[{...},{...},...]'
 ```
 
 
