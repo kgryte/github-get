@@ -99,7 +99,6 @@ if ( args.accept ) {
 if ( args.useragent ) {
 	opts.useragent = args.useragent;
 }
-// Set the authorization token...
 if ( args.token ) {
 	token = args.token;
 }
