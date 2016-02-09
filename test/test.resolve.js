@@ -183,16 +183,19 @@ tape( 'if a paginated request encounters an application error (e.g., network goe
 	var h1, h2, h3;
 	var b1, b2, b3;
 
+	// First request call:
 	e1 = null;
 	h1 = headers();
 	h1.link = link1;
 	h1[ 'x-ratelimit-remaining' ] = 4999;
 	b1 = {'beep':'boop'};
 
+	// Second request call:
 	e2 = new Error( 'ENOTFOUND' );
 	h2 = null;
 	b2 = null;
 
+	// Third request call:
 	e3 = null;
 	h3 = headers();
 	h3.link = link3;
@@ -206,6 +209,8 @@ tape( 'if a paginated request encounters an application error (e.g., network goe
 	});
 
 	opts = options();
+
+	// Set the `last_page` option to 'last' to instruct `resolve` to resolve multiple pages:
 	opts.last_page = 'last';
 
 	resolve( opts, done );
