@@ -26,6 +26,7 @@ function options() {
 		'port': 443,
 		'pathname': '/api/v3/user/repos',
 		'page': 1,
+		'per_page': 100,
 		'last_page': 1,
 		'useragent': 'beepboopbop',
 		'accept': 'application/vnd.github.v3+json',
@@ -290,14 +291,115 @@ tape( 'for some downstream errors, rate limit information may not be available',
 });
 
 tape( 'the function supports basic (non-paginated) requests', function test( t ) {
-	// e.g., / => {...}
-	t.ok( false );
-	t.end();
+	// e.g., https://api.github.com/
+	var resolve;
+	var mock;
+	var body;
+	var h;
+
+	h = headers();
+
+	body = {
+		'beep': 'boop'
+	};
+
+	mock = request( null, h, body );
+
+	resolve = proxyquire( './../lib/resolve.js', {
+		'./request.js': mock
+	});
+
+	resolve( options(), done );
+
+	function done( error, data, info ) {
+		t.equal( error, null, 'error is null' );
+
+		t.deepEqual( data, body, 'equal response data' );
+
+		t.equal( info.remaining, +h[ 'x-ratelimit-remaining' ], 'equal rate limit remaining' );
+		t.equal( info.reset, +h[ 'x-ratelimit-reset' ], 'equal rate limit reset' );
+		t.equal( info.limit, +h[ 'x-ratelimit-limit' ], 'equal rate limit limit' );
+
+		t.end();
+	}
 });
 
 tape( 'the function handles the case where a user wants multiple pages, but only a single page exists (no link header)', function test( t ) {
-	t.ok( false );
-	t.end();
+	// e.g., https://api.github.com/ where not possible to return multiple pages
+	var resolve;
+	var mock;
+	var body;
+	var opts;
+	var h;
+
+	h = headers();
+
+	body = {
+		'beep': 'boop'
+	};
+
+	mock = request( null, h, body );
+
+	resolve = proxyquire( './../lib/resolve.js', {
+		'./request.js': mock
+	});
+
+	opts = options();
+	opts.last_page = 'last';
+
+	resolve( opts, done );
+
+	function done( error, data, info ) {
+		t.equal( error, null, 'error is null' );
+
+		t.deepEqual( data, body, 'equal response data' );
+
+		t.equal( info.remaining, +h[ 'x-ratelimit-remaining' ], 'equal rate limit remaining' );
+		t.equal( info.reset, +h[ 'x-ratelimit-reset' ], 'equal rate limit reset' );
+		t.equal( info.limit, +h[ 'x-ratelimit-limit' ], 'equal rate limit limit' );
+
+		t.end();
+	}
+});
+
+tape( 'the function handles the case where a user wants multiple pages, but only a single page exists (no link header)', function test( t ) {
+	// e.g., https://api.github.com/user/repos, where possible to return multiple pages, but page size exceeds total number of results
+	var resolve;
+	var mock;
+	var body;
+	var opts;
+	var h;
+
+	h = headers();
+
+	body = [
+		{ 'beep': 'boop' },
+		{ 'a': 5 },
+		{ 'b': 6 }
+	];
+
+	mock = request( null, h, body );
+
+	resolve = proxyquire( './../lib/resolve.js', {
+		'./request.js': mock
+	});
+
+	opts = options();
+	opts.last_page = 'last';
+	
+	resolve( opts, done );
+
+	function done( error, data, info ) {
+		t.equal( error, null, 'error is null' );
+
+		t.deepEqual( data, body, 'equal response data' );
+
+		t.equal( info.remaining, +h[ 'x-ratelimit-remaining' ], 'equal rate limit remaining' );
+		t.equal( info.reset, +h[ 'x-ratelimit-reset' ], 'equal rate limit reset' );
+		t.equal( info.limit, +h[ 'x-ratelimit-limit' ], 'equal rate limit limit' );
+
+		t.end();
+	}
 });
 
 tape( 'the function supports resolving multiple pages', function test( t ) {
