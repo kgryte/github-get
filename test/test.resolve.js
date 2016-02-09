@@ -126,11 +126,11 @@ function multirequest( args ) {
 
 // VARIABLES //
 
-var link1 = '<https://api.github.com/user/9287/repos?page=2&per_page=100>; rel="next", <https://api.github.com/user/9287/repos?page=3&per_page=100>; rel="last"';
+var link1 = '<https://api.github.com/user/9287/repos?page=2&per_page=1>; rel="next", <https://api.github.com/user/9287/repos?page=3&per_page=1>; rel="last"';
 
-var link2 = '<https://api.github.com/user/9287/repos?page=1&per_page=100>; rel="first", <https://api.github.com/user/9287/repos?page=3&per_page=100>; rel="next", <https://api.github.com/user/9287/repos?page=1&per_page=100>; rel="prev", <https://api.github.com/user/9287/repos?page=3&per_page=100>; rel="last"';
+var link2 = '<https://api.github.com/user/9287/repos?page=1&per_page=1>; rel="first", <https://api.github.com/user/9287/repos?page=3&per_page=1>; rel="next", <https://api.github.com/user/9287/repos?page=1&per_page=1>; rel="prev", <https://api.github.com/user/9287/repos?page=3&per_page=1>; rel="last"';
 
-var link3 = '<https://api.github.com/user/9287/repos?page=1&per_page=100>; rel="first", <https://api.github.com/user/9287/repos?page=2&per_page=100>; rel="prev", <https://api.github.com/user/9287/repos?page=3&per_page=100>; rel="last"';
+var link3 = '<https://api.github.com/user/9287/repos?page=1&per_page=1>; rel="first", <https://api.github.com/user/9287/repos?page=2&per_page=1>; rel="prev", <https://api.github.com/user/9287/repos?page=3&per_page=1>; rel="last"';
 
 
 // TESTS //
@@ -177,7 +177,7 @@ tape( 'if a paginated request encounters an application error (e.g., network goe
 	arr[ 1 ] = headers();
 	arr[ 1 ].link = link1;
 	arr[ 1 ][ 'x-ratelimit-remaining' ] = '4999';
-	arr[ 2 ] = {'beep':'boop'};
+	arr[ 2 ] = [{'beep':'boop'}];
 	args.push( arr );
 
 	// Second request call:
@@ -193,7 +193,7 @@ tape( 'if a paginated request encounters an application error (e.g., network goe
 	arr[ 1 ] = headers();
 	arr[ 1 ].link = link3;
 	arr[ 1 ][ 'x-ratelimit-remaining' ] = '4998';
-	arr[ 2 ] = {'boop':'beep'};
+	arr[ 2 ] = [{'boop':'beep'}];
 	args.push( arr );
 
 	mock = multirequest( args );
@@ -403,13 +403,129 @@ tape( 'the function handles the case where a user wants multiple pages, but only
 });
 
 tape( 'the function supports resolving multiple pages', function test( t ) {
-	t.ok( false );
-	t.end();
+	var expected;
+	var resolve;
+	var mock;
+	var opts;
+	var args;
+	var arr;
+
+	args = [];
+
+	expected = [
+		{'beep':'boop'},
+		{'beep':'bop'}
+	];
+
+	// First request call:
+	arr = new Array( 3 );
+	arr[ 0 ] = null;
+	arr[ 1 ] = headers();
+	arr[ 1 ].link = link1;
+	arr[ 1 ][ 'x-ratelimit-remaining' ] = '4999';
+	arr[ 2 ] = [ expected[0] ];
+	args.push( arr );
+
+	// Second request call:
+	arr = new Array( 3 );
+	arr[ 0 ] = null;
+	arr[ 1 ] = headers();
+	arr[ 1 ].link = link2;
+	arr[ 1 ][ 'x-ratelimit-remaining' ] = '4998';
+	arr[ 2 ] = [ expected[1] ];
+	args.push( arr );
+
+	mock = multirequest( args );
+
+	resolve = proxyquire( './../lib/resolve.js', {
+		'./request.js': mock
+	});
+
+	opts = options();
+	opts.last_page = 2;
+
+	resolve( opts, done );
+
+	function done( error, data, info ) {
+		t.equal( error, null, 'error is null' );
+
+		t.deepEqual( data, expected, 'expected response data' );
+
+		t.ok( info, 'has ratelimit info' );
+		t.equal( info.remaining, +args[1][1][ 'x-ratelimit-remaining' ], 'equal rate limit remaining' );
+		t.equal( info.reset, +args[0][1][ 'x-ratelimit-reset' ], 'equal rate limit reset' );
+		t.equal( info.limit, +args[0][1][ 'x-ratelimit-limit' ], 'equal rate limit limit' );
+
+		t.end();
+	}
 });
 
 tape( 'the function supports resolving all pages', function test( t ) {
-	t.ok( false );
-	t.end();
+	var expected;
+	var resolve;
+	var mock;
+	var opts;
+	var args;
+	var arr;
+
+	args = [];
+
+	expected = [
+		{'beep':'boop'},
+		{'beep':'bop'},
+		{'beep':'bap'}
+	];
+
+	// First request call:
+	arr = new Array( 3 );
+	arr[ 0 ] = null;
+	arr[ 1 ] = headers();
+	arr[ 1 ].link = link1;
+	arr[ 1 ][ 'x-ratelimit-remaining' ] = '4999';
+	arr[ 2 ] = [ expected[0] ];
+	args.push( arr );
+
+	// Second request call:
+	arr = new Array( 3 );
+	arr[ 0 ] = null;
+	arr[ 1 ] = headers();
+	arr[ 1 ].link = link2;
+	arr[ 1 ][ 'x-ratelimit-remaining' ] = '4998';
+	arr[ 2 ] = [ expected[1] ];
+	args.push( arr );
+
+	// Third request call:
+	arr = new Array( 3 );
+	arr[ 0 ] = null;
+	arr[ 1 ] = headers();
+	arr[ 1 ].link = link3;
+	arr[ 1 ][ 'x-ratelimit-remaining' ] = '4997';
+	arr[ 2 ] = [ expected[2] ];
+	args.push( arr );
+
+	mock = multirequest( args );
+
+	resolve = proxyquire( './../lib/resolve.js', {
+		'./request.js': mock
+	});
+
+	opts = options();
+	opts.last_page = 'last';
+
+	resolve( opts, done );
+
+	function done( error, data, info ) {
+		t.equal( error, null, 'error is null' );
+
+		t.deepEqual( data, expected, 'expected response data' );
+
+		t.ok( info, 'has ratelimit info' );
+		t.equal( info.remaining, +args[2][1][ 'x-ratelimit-remaining' ], 'equal rate limit remaining' );
+		t.equal( info.reset, +args[0][1][ 'x-ratelimit-reset' ], 'equal rate limit reset' );
+		t.equal( info.limit, +args[0][1][ 'x-ratelimit-limit' ], 'equal rate limit limit' );
+
+		t.end();
+	}
 });
 
 tape( 'the function supports resolving an arbitrary subset of pages', function test( t ) {
