@@ -129,7 +129,8 @@ function onResponse( error, data, info ) {
 		process.stderr.write( JSON.stringify( info ) + '\n' );
 	}
 	if ( error ) {
-		throw error;
+		process.stderr.write( error.message );
+		return;
 	}
 	process.stdout.write( JSON.stringify( data ) + '\n' );
 }
