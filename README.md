@@ -171,7 +171,7 @@ function onResponse( error, data, info ) {
 To run the example code from the top-level application directory,
 
 ``` bash
-$ node ./examples/index.js
+$ DEBUG=* node ./examples/index.js
 ```
 
 __Note__: in order to run the example, you will need to obtain an access [token][github-token] and modify the `token` option accordingly.
