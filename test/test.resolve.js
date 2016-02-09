@@ -42,9 +42,9 @@ function options() {
 */
 function headers() {
 	return {
-		'x-ratelimit-limit': 5000,
-		'x-ratelimit-remaining': 4999,
-		'x-ratelimit-reset': round( Date.now()/1000 )
+		'x-ratelimit-limit': '5000',
+		'x-ratelimit-remaining': '4999',
+		'x-ratelimit-reset': ( round( Date.now()/1000 ) ).toString()
 	};
 } // end FUNCTION headers()
 
@@ -175,7 +175,7 @@ tape( 'if a paginated request encounters an application error (e.g., network goe
 	arr[ 0 ] = null;
 	arr[ 1 ] = headers();
 	arr[ 1 ].link = link1;
-	arr[ 1 ][ 'x-ratelimit-remaining' ] = 4999;
+	arr[ 1 ][ 'x-ratelimit-remaining' ] = '4999';
 	arr[ 2 ] = {'beep':'boop'};
 	args.push( arr );
 
@@ -191,7 +191,7 @@ tape( 'if a paginated request encounters an application error (e.g., network goe
 	arr[ 0 ] = null;
 	arr[ 1 ] = headers();
 	arr[ 1 ].link = link3;
-	arr[ 1 ][ 'x-ratelimit-remaining' ] = 4998;
+	arr[ 1 ][ 'x-ratelimit-remaining' ] = '4998';
 	arr[ 2 ] = {'boop':'beep'};
 	args.push( arr );
 
@@ -215,15 +215,43 @@ tape( 'if a paginated request encounters an application error (e.g., network goe
 		t.equal( data, null, 'no response data' );
 
 		t.ok( info, 'has ratelimit info' );
-		t.equal( info.remaining, args[2][1][ 'x-ratelimit-remaining' ], 'equal rate limit remaining' );
+		t.equal( info.remaining, +args[2][1][ 'x-ratelimit-remaining' ], 'equal rate limit remaining' );
 
 		t.end();
 	}
 });
 
 tape( 'for some downstream errors, the error is returned to the provided callback with rate limit information', function test( t ) {
-	t.ok( false );
-	t.end();
+	var resolve;
+	var mock;
+	var err;
+	var h;
+
+	err = {
+		'status': 502,
+		'message': 'unable to parse response as JSON'
+	};
+
+	h = headers();
+	mock = request( err, h, null );
+
+	resolve = proxyquire( './../lib/resolve.js', {
+		'./request.js': mock
+	});
+
+	resolve( options(), done );
+
+	function done( error, data, info ) {
+		t.equal( error.status, err.status, 'equal status' );
+		t.equal( error.message, err.message, 'equal message' );
+
+		t.equal( data, null, 'no response data' );
+
+		t.ok( info, 'has rate limit info' );
+		t.equal( info.remaining, +h[ 'x-ratelimit-remaining' ], 'equal rate limit remaining' );
+
+		t.end();
+	}
 });
 
 tape( 'for some downstream errors, rate limit information may not be available', function test( t ) {
