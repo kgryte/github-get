@@ -3,19 +3,19 @@
 
 // MODULES //
 
-var fs = require( 'fs' ),
-	path = require( 'path' ),
-	url = require( 'url' ),
-	parseArgs = require( 'minimist' ),
-	opts = require( './opts.json' );
+var fs = require( 'fs' );
+var path = require( 'path' );
+var parseArgs = require( 'minimist' );
+var notifier = require( 'update-notifier' );
+var pkg = require( './../package.json' );
+var opts = require( './opts.json' );
+var request = require( './../lib' );
 
 
 // VARIABLES //
 
-var SIGTERM = 128 + 15,
-	SIGINT = 128 + 2,
-	SIGHUP = 128 + 1,
-	query;
+var token;
+var args;
 
 
 // FUNCTIONS //
@@ -27,100 +27,7 @@ var SIGTERM = 128 + 15,
 * @private
 */
 function onClose() {
-	process.exit( 1 );
-}
-
-/**
-* FUNCTION: onError( evt )
-*	Event listener invoked when a query instance emits an `error`.
-*
-* @private
-* @param {Object} evt - error event object
-*/
-function onError( evt ) {
-	console.error( evt );
-}
-
-/**
-* FUNCTION: onData( evt )
-*	Event listener invoked upon receiving data from a Github API endpoint. Writes the data to `stdout`.
-*
-* @private
-* @param {Object} evt - data event object
-*/
-function onData( evt ) {
-	process.stdout.write( JSON.stringify( evt.data ) );
-}
-
-/**
-* FUNCTION: sigterm()
-*	Callback invoked upon the process receiving a SIGTERM signal.
-*
-* @private
-*/
-function sigterm() {
-	cleanup( onCleanup( SIGTERM ) );
-}
-
-/**
-* FUNCTION: sigint()
-*	Callback invoked upon the process receiving a SIGINT signal.
-*
-* @private
-*/
-function sigint() {
-	cleanup( onCleanup( SIGINT ) );
-}
-
-/**
-* FUNCTION: sighup()
-*	Callback invoked upon the process receiving a SIGHUP signal.
-*
-* @private
-*/
-function sighup() {
-	cleanup( onCleanup( SIGHUP ) );
-}
-
-/**
-* FUNCTION: cleanup( clbk )
-*	Performs any cleanup tasks before the process exits.
-*
-* @private
-* @param {Function} clbk - callback to invoke once cleanup tasks are finished
-*/
-function cleanup( clbk ) {
-	query.stop();
-	if ( query.pending ) {
-		query.on( 'pending', onPending );
-	} else {
-		clbk();
-	}
-	function onPending( count ) {
-		if ( count === 0 ) {
-			clbk();
-		}
-	}
-}
-
-/**
-* FUNCTION: onCleanup( code )
-*	Encloses an exit code and returns a callback.
-*
-* @private
-* @param {Number} code - exit code
-* @returns {Function} callback
-*/
-function onCleanup( code ) {
-	/**
-	* FUNCTION: done()
-	*	Callback invoked once cleanup tasks are complete. Exits the process.
-	*
-	* @private
-	*/
-	return function done() {
-		process.exit( code );
-	};
+	process.exit( 0 );
 }
 
 
@@ -129,9 +36,14 @@ function onCleanup( code ) {
 process.stdout.on( 'error', process.exit );
 
 
+// PACKAGE UPDATES //
+
+notifier( { 'pkg': pkg } ).notify();
+
+
 // ARGUMENTS //
 
-var args = parseArgs( process.argv.slice( 2 ), opts );
+args = parseArgs( process.argv.slice( 2 ), opts );
 
 
 // HELP //
@@ -147,41 +59,46 @@ if ( args.help ) {
 // VERSION //
 
 if ( args.version ) {
-	console.log( require( './../package.json' ).version );
+	console.log( pkg.version );
 	return;
 }
 
 
-// REQUEST //
+// OPTIONS //
 
-var token,
-	keys,
-	uri,
-	len,
-	key,
-	qs,
-	i;
+opts = {};
 
-opts = require( './defaults.json' );
-
-// [0] Parse the URI and extract any query string parameters...
-if ( args._.length ) {
-	uri = args._[ 0 ];
-} else {
-	uri = args.uri;
+if ( args.protocol ) {
+	opts.protocol = args.protocol;
 }
-uri = url.parse( uri, true );
-
-qs = uri.query;
-keys = Object.keys( qs );
-len = keys.length;
-for ( i = 0; i < len; i++ ) {
-	key = keys[ i ];
-	opts.qs[ key ] = qs[ key ];
+if ( args.hostname ) {
+	opts.hostname = args.hostname;
 }
-opts.uri = uri;
-
-// [1] Set the authorization token...
+if ( args.port ) {
+	opts.port = parseInt( args.port, 10 );
+}
+if ( args.pathname ) {
+	opts.pathname = args.pathname;
+}
+if ( args.page ) {
+	opts.page = parseInt( args.page, 10 );
+}
+if ( args.last_page ) {
+	if ( args.last_page === 'last' ) {
+		opts.last_page = 'last';
+	} else {
+		opts.last_page = parseInt( args.last_page, 10 );
+	}
+}
+if ( args.per_page ) {
+	opts.per_page = parseInt( args.per_page, 10 );
+}
+if ( args.accept ) {
+	opts.Accept = args.accept;
+}
+if ( args.useragent ) {
+	opts.useragent = args.useragent;
+}
 if ( args.token ) {
 	token = args.token;
 }
@@ -189,29 +106,30 @@ else if ( process.env.GITHUB_TOKEN ) {
 	token = process.env.GITHUB_TOKEN;
 }
 if ( token ) {
-	opts.headers.Authorization = 'token ' + token;
+	opts.token = token;
 }
-// [2] If a special media type has been provided, set the `Accept` header...
-if ( args.accept ) {
-	opts.headers.Accept = args.accept;
-}
-// [3] Option to query for all paginated results:
-opts.all = args.all;
 
-// [4] Option for polling the Github API...
-if ( args.interval ) {
-	opts.interval = parseFloat( args.interval );
-}
-// [5] Create a new query instance:
-query = require( './../lib' )( opts );
 
-// [6] Add event listeners:
-query.on( 'error', onError );
-query.on( 'data', onData );
+// REQUEST //
 
-// [7] Only add signal listeners if we are polling a Github API endpoint...
-if ( opts.interval ) {
-	process.on( 'SIGTERM', sigterm );
-	process.on( 'SIGINT', sigint );
-	process.on( 'SIGHUP', sighup );
+request( opts, onResponse );
+
+/**
+* FUNCTION: onResponse( error, data, info )
+*	Callback invoked upon receiving a request response.
+*
+* @private
+* @param {Error|Null} error - error object
+* @param {Array[]} data - response data
+* @param {Object} info - rate limit info
+* @returns {Void}
+*/
+function onResponse( error, data, info ) {
+	if ( info ) {
+		process.stderr.write( JSON.stringify( info ) + '\n' );
+	}
+	if ( error ) {
+		throw error;
+	}
+	process.stdout.write( JSON.stringify( data ) + '\n' );
 }

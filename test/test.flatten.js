@@ -1,51 +1,44 @@
-/* global require, describe, it */
 'use strict';
 
 // MODULES //
 
-var // Expectation library:
-	chai = require( 'chai' ),
-
-	// Module to be tested:
-	flatten = require( './../lib/flatten.js' );
-
-
-// VARIABLES //
-
-var expect = chai.expect,
-	assert = chai.assert;
+var tape = require( 'tape' );
+var flatten = require( './../lib/flatten.js' );
 
 
 // TESTS //
 
-describe( 'flatten', function tests() {
+tape( 'the main export is a function', function test( t ) {
+	t.equal( typeof flatten, 'function', 'main export is a function' );
+	t.end();
+});
 
-	it( 'should export a function', function test() {
-		expect( flatten ).to.be.a( 'function' );
-	});
+tape( 'the function flattens an array of arrays', function test( t ) {
+	var expected;
+	var actual;
+	var arr;
 
-	it( 'should flatten an array of arrays', function test() {
-		var arr, actual, expected;
+	arr = [ [1,2],[3,4],[5,6] ];
 
-		arr = [ [1,2],[3,4],[5,6] ];
+	actual = flatten( arr );
+	expected = [ 1, 2, 3, 4, 5, 6 ];
 
-		actual = flatten( arr );
-		expected = [ 1, 2, 3, 4, 5, 6 ];
+	t.deepEqual( actual, expected, 'deep equal' );
+	t.end();
+});
 
-		assert.deepEqual( actual, expected );
-	});
+tape( 'the function flattens an array which includes missing values', function test( t ) {
+	var expected;
+	var actual;
+	var arr;
 
-	it( 'should flatten an array which includes missing values', function test() {
-		var arr, actual, expected;
+	arr = new Array( 3 );
+	arr[ 0 ] = [ 1, 2 ];
+	arr[ 2 ] = [ 5, 6 ];
 
-		arr = new Array( 3 );
-		arr[ 0 ] = [ 1, 2 ];
-		arr[ 2 ] = [ 5, 6 ];
+	actual = flatten( arr );
+	expected = [ 1, 2, 5, 6 ];
 
-		actual = flatten( arr );
-		expected = [ 1, 2, 5, 6 ];
-
-		assert.deepEqual( actual, expected );
-	});
-
+	t.deepEqual( actual, expected, 'deep equal' );
+	t.end();
 });

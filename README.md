@@ -1,8 +1,8 @@
 Github Get
 ===
-[![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url] [![Dependencies][dependencies-image]][dependencies-url]
+[![NPM version][npm-image]][npm-url] [![Build Status][build-image]][build-url] [![Coverage Status][coverage-image]][coverage-url] [![Dependencies][dependencies-image]][dependencies-url]
 
-> Retrieves resources from a [Github API](https://developer.github.com/v3/) endpoint.
+> Retrieves resources from a [Github API][github-api] endpoint.
 
 
 ## Installation
@@ -11,330 +11,170 @@ Github Get
 $ npm install @kgryte/github-get
 ```
 
-For use in the browser, use [browserify](https://github.com/substack/node-browserify).
-
 
 ## Usage
 
 ``` javascript
-var createQuery = require( '@kgryte/github-get' );
+var request = require( '@kgryte/github-get' );
 ```
 
+<a name="request"></a>
+#### request( [options,] clbk )
 
-#### createQuery( opts )
+Retrieves resources from a [Github API][github-api] endpoint.
 
-Creates a new `Query` instance for retrieving resources from a [Github API](https://developer.github.com/v3/) endpoint.
+``` javascript
+request( onResponse );
+
+function onResponse( error, data, info ) {
+	// Check for rate limit info...
+	if ( info ) {
+		console.error( 'Limit: %d', info.limit );
+		console.error( 'Remaining: %d', info.remaining );
+		console.error( 'Reset: %s', (new Date( info.reset*1000 )).toISOString() );
+	}
+	if ( error ) {
+		throw error;
+	}
+	console.log( JSON.stringify( data ) );
+	// returns <response_data>
+}
+```
+
+The `function` accepts the following `options`:
+*	__protocol__: request protocol. Default: `'https'`.
+*	__hostname__: endpoint hostname. Default: `'api.github.com'`.
+*	__port__: endpoint port. Default: `443` (https) or `80` (http).
+*	__pathname__: resource [pathname][github-api]; e.g., `/user/repos`. Default: `'/'`.
+*	__page__: resource [page][github-pagination]. Default: `1`.
+*	__last_page__: last resource page. If provided, the `function` will use [link headers][web-links] to resolve all pages starting from `page`. Default: `1`.
+*	__per_page__: page size. Default: `100`.
+*	__token__: Github [access token][github-token].
+*	__accept__: [media type][github-media]. Default: `'application/vnd.github.moondragon+json'`.
+*	__useragent__: [user agent][github-user-agent] `string`.
+
+To specify a particular resource [endpoint][github-api], set the `pathname` option.
 
 ``` javascript
 var opts = {
-	'uri': 'https://api.github.com/user/repos'	
+	'pathname': '/user/repos'
 };
 
-var query = createQuery( opts );
-query.on( 'data', onData );
-
-function onData( evt ) {
-	console.log( evt.data );
-	// returns [{...},{...},...]
-}
+request( opts, onResponse );
 ```
 
-The `constructor` accepts the standard [request](https://github.com/request/request) options. Additional options are as follows:
-
--	__all__: `boolean` indicating if all paginated results should be returned from the endpoint. By default, Github [paginates](https://developer.github.com/guides/traversing-with-pagination/) results. Setting this option to `true` instructs the `Query` instance to continue making requests until __all__ pages have been returned. Default: `false`.
--	__interval__: positive `number` defining a poll [interval](https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setInterval) for repeatedly querying the Github API. The interval should be in units of `milliseconds`. If an `interval` is __not__ provided, only a single query is made to the Github API. Default: `3600000` (1hr).
-
-	``` javascript
-	var opts = {
-		'uri': 'https://api.github.com/user/repos',
-		'all': true,
-		'interval': 600000 // 10 minutes
-	};
-
-	// Every 10 minutes, fetch the list of repos...
-	var query = createQuery( opts );
-	query.on( 'data', onData );
-
-	function onData( evt ) {
-		console.log( evt.data );
-		// returns [{...},{...},...]
-	}
-	``` 
-
-
-
-===
-### Attributes
-
-A `Query` instance has the following attributes...
-
-
-#### query.all
-
-Attribute indicating if all paginated results should be returned from the endpoint. By default, Github [paginates](https://developer.github.com/guides/traversing-with-pagination/) results. Setting this option to `true` instructs a `Query` instance to continue making requests until __all__ pages have been returned. Default: `false`.
+To [authenticate][github-oauth2] with an endpoint, set the [`token`][github-token] option.
 
 ``` javascript
-query.all = true;
+var opts = {
+	'token': 'tkjorjk34ek3nj4!'
+};
+
+request( opts, onResponse );
 ```
 
-
-#### query.interval
-
-Attribute defining a poll [interval](https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setInterval) for repeatedly querying the Github API. An `interval` should be in units of `milliseconds`. Default: `3600000` (1hr).
+By default, the `function` only requests a single [page][github-pagination] of results. To resolve multiple [pages][github-pagination], set the `last_page` option.
 
 ``` javascript
-query.interval = 60000; // 1 minute
+// Resolves pages 2-5...
+var opts = {
+	'page': 2,
+	'last_page': 5
+};
+
+request( opts, onResponse );
 ```
 
-Once set, a `Query` instance immediately begins polling the Github API according to the specified `interval`.
-
-
-#### query.pending
-
-Read-only attribute providing the number of pending API requests.
+To specify that all [pages][github-pagination] beginning from `page` be resolved, set the `last_page` option to `'last'`.
 
 ``` javascript
-if ( query.pending ) {
-	console.log( '%d requests still pending...', query.pending );
-}
+// Resolve all pages...
+var opts = {
+	'last_page': 'last'
+};
+
+request( opts, onResponse );
 ```
 
-
-===
-### Methods
-
-A `Query` instance has the following methods...
-
-#### query.query()
-
-Instructs a `Query` instance to perform a single query of a Github API endpoint.
+To specify a [user agent][github-user-agent], set the `useragent` option.
 
 ``` javascript
-query.query();
+var opts = {
+	'useragent': 'hello-github!'
+};
+
+request( opts, onResponse );
 ```
 
-This method is useful when manually polling an endpoint (i.e., no fixed `interval`).
 
+#### request.factory( options, clbk )
 
-#### query.start()
-
-Instructs a `Query` instance to start polling a Github API endpoint. 
+Creates a reusable `function`.
 
 ``` javascript
-query.start();
+var opts = {
+	'pathname': '/user/repos',
+	'last_page': 'last',
+	'token': 'tkjorjk34ek3nj4!'
+};
+
+var get = request.factory( opts, clbk );
+
+get();
+get();
+get();
+// ...
 ```
 
-
-#### query.stop()
-
-Instructs a `Query` instance to stop polling a Github API endpoint.
-
-``` javascript
-query.stop();
-```
-
-__Note__: pending requests are still allowed to complete. 
+The factory method accepts the same `options` as [`request()`](#request).
 
 
+## Notes
 
-===
-### Events
-
-A `Query` instance emits the following events...
-
-
-#### 'error'
-
-A `Query` instance emits an `error` event whenever a non-fatal error occurs; e.g., an invalid value is assigned to an attribute, HTTP response errors, etc. To capture `errors`,
-
-``` javascript
-function onError( evt ) {
-	console.error( evt );
-}
-
-query.on( 'error', onError );
-```
-
-#### 'init'
-
-A `Query` instance emits an `init` event prior to querying a Github endpoint. Each query is assigned a unique identifier, which is emitted during this event.
-
-``` javascript
-function onInit( evt ) {
-	console.log( evt.qid );
-}
-
-query.on( 'init', onInit );
-```
-
-Listening on this event could be useful for query monitoring.
-
-
-#### 'request'
-
-A `Query` instance emits a `request` event when making an HTTP request to a Github endpoint. If `query.all` is `true`, a single query could be comprised of multiple requests. Each request will result in a `request` event.
-
-``` javascript
-function onRequest( evt ) {
-	console.log( evt );
-}
-
-query.on( 'request', onRequest );
-```
-
-For paginated queries, each request maps to a particular page. The page identifier is specified by a request id `rid`.
-
-
-#### 'page'
-
-A `Query` instance emits a `page` event upon receiving a paginated response.
-
-``` javascript
-function onPage( evt ) {
-	console.log( 'Request id: %d.', evt.rid );
-	console.log( 'Page number: %d.', evt.page );
-	console.log( 'Page %d of %d.', evt.count, evt.total );
-	console.log( evt.data );
-}
-
-query.on( 'page', onPage );
-```
-
-
-#### 'data'
-
-A `Query` instance emits a `data` event after processing all query data. For queries involving pagination, all data is concatenated into a single `array`.
-
-``` javascript
-function onData( evt ) {
-	console.log( evt.data );
-}
-
-query.on( 'data', onData );
-```
-
-
-
-#### 'end'
-
-A `Query` instance emits an `end` event once a query is finished processing all requests. Of interest, the emitted event includes [rate limit](https://developer.github.com/v3/rate_limit/) information, which could be useful for throttling queries.
-
-``` javascript
-function onEnd( evt ) {
-	console.log( 'Rate limit info...' );
-	console.dir( evt.ratelimit );
-}
-
-query.on( 'end', onEnd );
-```
-
-
-#### 'pending'
-
-A `Query` instance emits a `pending` event anytime the number of pending requests changes. Listening to this event could be useful when wanting to gracefully end a `Query` instance (e.g., allow all pending requests to finish before killing a process).
-
-``` javascript
-function onPending( count ) {
-	console.log( '%d pending requests...', count );
-}
-
-query.on( 'pending', onPending );
-```
-
-
-#### 'start'
-
-A `Query` instance emits a `start` event immediately before creating a new interval timer and starting to poll a Github API endpoint.
-
-``` javascript
-function onStart() {
-	console.log( 'Polling has begun...' );
-}
-
-query.on( 'start', onStart );
-```
-
-
-#### 'stop'
-
-A `Query` instance emits a `stop` event when it stops polling a Github API endpoint.
-
-``` javascript
-function onStop() {
-	console.log( 'Polling has ended...' );
-}
-
-query.on( 'stop', onStop );
-```
-
-__Note__: pending requests may result in `data` and other associated events being emitted __after__ a `stop` event occurs.
-
-
+*	If the module encounters an application-level `error` while __initially__ querying an endpoint (e.g., no network connection, malformed request, etc), that `error` is returned immediately to the provided `callback`.
+*	Response data will either be an `object` or an object `array`. If multiple [pages][github-pagination] are resolved, response data is __always__ an object `array`.
+* 	The `function` will honor the `last_page` option as long as the option value does __not__ exceed the maximum number of available [pages][github-pagination].
+*	[Rate limit][github-rate-limit] information includes the following:
+	-	__limit__: maximum number of requests a consumer is permitted to make per hour.
+	-	__remaining__: number of remaining requests.
+	-	__reset__: time at which the current [rate limit][github-rate-limit] window resets in [UTC seconds][unix-time].
 
 
 ---
 ## Examples
 
 ``` javascript
-var createQuery = require( '@kgryte/github-get' );
+var request = require( '@kgryte/github-get' );
 
 var opts = {
-	'uri': 'https://api.github.com/user/repos',
-	'headers': {
-		'User-Agent': 'my-unique-agent',
-		'Accept': 'application/vnd.github.moondragon+json',
-		'Authorization': 'token tkjorjk34ek3nj4!'
-	},
-	'qs': {
-		'page': 1,
-		'per_page': 100
-	},
-	'all': true,
-	'interval': 10000 // every 10 seconds
+	'hostname': 'api.github.com',
+	'pathname': '/user/repos',
+	'useragent': 'my-unique-agent',
+	'accept': 'application/vnd.github.moondragon+json',
+	'token': 'tkjorjk34ek3nj4!',
+	'last_page': 'last'
 };
 
-function onError( evt ) {
-	console.error( evt );
+request( opts, onResponse );
+
+function onResponse( error, data, info ) {
+	if ( info ) {
+		console.error( info );
+	}
+	if ( error ) {
+		throw error;
+	}
+	console.log( data );
 }
-
-function onRequest( evt ) {
-	console.log( evt );
-}
-
-function onPage( evt ) {
-	var pct = evt.count / evt.total * 100;
-	console.log( 'Query %d progress: %d%.' , evt.qid, Math.round( pct ) );
-}
-
-function onData( evt ) {
-	console.log( evt.data );
-}
-
-function onEnd( evt ) {
-	console.log( 'Query %d ended...', evt.qid );
-	console.dir( evt.ratelimit );
-}
-
-var query = createQuery( opts );
-query.on( 'error', onError );
-query.on( 'request', onRequest );
-query.on( 'page', onPage );
-query.on( 'data', onData );
-query.on( 'end', onEnd );
-
-// Stop polling after 60 seconds...
-setTimeout( function stop() {
-	query.stop();
-}, 60000 );
 ```
 
 To run the example code from the top-level application directory,
 
 ``` bash
-$ node ./examples/index.js
+$ DEBUG=* node ./examples/index.js
 ```
 
-__Note__: in order to run the example, you will need to obtain a personal access [token](https://github.com/settings/tokens/new) and modify the `Authorization` header accordingly.
+__Note__: in order to run the example, you will need to obtain an access [token][github-token] and modify the `token` option accordingly.
 
 
 
@@ -353,51 +193,59 @@ $ npm install -g @kgryte/github-get
 ### Usage
 
 ``` bash
-Usage: github-get [options] <uri>
+Usage: ghget [options] 
 
 Options:
 
-  -h,    --help                Print this message.
-  -V,    --version             Print the package version.
-         --uri [uri]           Github URI.
-         --token [token]       Github personal access token.
-         --accept [media_type] Github media type.
-         --all                 Fetch all pages.
-         --interval [ms]       Poll interval (in milliseconds).
+  -h,  --help               Print this message.
+  -V,  --version            Print the package version.
+       --protocol protocol  Request protocol. Default: https.
+       --hostname host      Hostname. Default: api.github.com.
+  -p,  --port port          Port. Default: 443 (https) or 80 (http).
+       --pathname pathname  Resource pathname. Default: '/'.
+       --token token        Github access token.
+       --accept media_type  Media type. Default: application/vnd.github.v3+json.
+  -ua, --useragent ua       User-agent.
+       --page page          Resource page. Default: 1.
+       --last_page page     Last resource page to resolve. Default: 1.
+       --per_page size      Page size. Default: 100.
 ```
 
 ### Notes
 
-*	In addition to the command-line `token` option, the token may also be specified by a `GITHUB_TOKEN` environment variable. The command-line option __always__ takes precedence.
-*	If the process receives a terminating [signal event](https://nodejs.org/api/process.html#process_signal_events) (e.g., `CTRL+C`) while polling a Github API endpoint, the process will stop polling and wait for any pending requests to complete before exiting.
+*	In addition to the [`token`][github-token] option, the [token][github-token] may also be specified by a [`GITHUB_TOKEN`][github-token] environment variable. The command-line option __always__ takes precedence.
+*	Request resources are written to `stdout`.
+*	[Rate limit][github-rate-limit] information is written to `stderr`.
 
 
 ### Examples
 
-Setting the personal access [token](https://github.com/settings/tokens/new) using the command-line option:
+Setting the access [token][github-token] using the command-line option:
 
 ``` bash
-$ github-get --token <token> --accept 'application/vnd.github.moondragon+json' --all 'https://api.github.com/user/repos'
-# => '[{..},{..},...]'
+$ DEBUG=* ghget --token <token> --pathname '/user/repos'
+# => '[{...},{...},...]'
 ```
 
-Setting the personal access [token](https://github.com/settings/tokens/new) using an environment variable:
+Setting the access [token][github-token] using an environment variable:
 
 ``` bash
-$ GITHUB_TOKEN=<token> github-get --accept 'application/vnd.github.moondragon+json' --all 'https://api.github.com/user/repos'
+$ DEBUG=* GITHUB_TOKEN=<token> ghget --pathname '/user/repos'
 # => '[{...},{...},...]'
 ```
 
 For local installations, modify the command to point to the local installation directory; e.g., 
 
 ``` bash
-$ ./node_modules/.bin/github-get --token <token> 'https://api.github.com/user/repos'
+$ DEBUG=* ./node_modules/.bin/ghget --token <token> --pathname '/user/repos'
+# => '[{...},{...},...]'
 ```
 
 Or, if you have cloned this repository and run `npm install`, modify the command to point to the executable; e.g., 
 
 ``` bash
-$ node ./bin/cli --token <token> 'https://api.github.com/user/repos'
+$ DEBUG=* node ./bin/cli --token <token> --pathname '/user/repos'
+# => '[{...},{...},...]'
 ```
 
 
@@ -406,7 +254,7 @@ $ node ./bin/cli --token <token> 'https://api.github.com/user/repos'
 
 ### Unit
 
-Unit tests use the [Mocha](http://mochajs.org/) test framework with [Chai](http://chaijs.com) assertions. To run the tests, execute the following command in the top-level application directory:
+This repository uses [tape][tape] for unit tests. To run the tests, execute the following command in the top-level application directory:
 
 ``` bash
 $ make test
@@ -417,7 +265,7 @@ All new feature development should have corresponding unit tests to validate cor
 
 ### Test Coverage
 
-This repository uses [Istanbul](https://github.com/gotwarlost/istanbul) as its code coverage tool. To generate a test coverage report, execute the following command in the top-level application directory:
+This repository uses [Istanbul][istanbul] as its code coverage tool. To generate a test coverage report, execute the following command in the top-level application directory:
 
 ``` bash
 $ make test-cov
@@ -430,6 +278,23 @@ $ make view-cov
 ```
 
 
+### Browser Support
+
+This repository uses [Testling][testling] for browser testing. To run the tests in a (headless) local web browser, execute the following command in the top-level application directory:
+
+``` bash
+$ make test-browsers
+```
+
+To view the tests in a local web browser,
+
+``` bash
+$ make view-browser-tests
+```
+
+<!-- [![browser support][browsers-image]][browsers-url] -->
+
+
 ---
 ## License
 
@@ -438,17 +303,17 @@ $ make view-cov
 
 ## Copyright
 
-Copyright &copy; 2015. Athan Reines.
+Copyright &copy; 2015-2016. Athan Reines.
 
 
 [npm-image]: http://img.shields.io/npm/v/@kgryte/github-get.svg
 [npm-url]: https://npmjs.org/package/@kgryte/github-get
 
-[travis-image]: http://img.shields.io/travis/kgryte/github-get/master.svg
-[travis-url]: https://travis-ci.org/kgryte/github-get
+[build-image]: http://img.shields.io/travis/kgryte/github-get/master.svg
+[build-url]: https://travis-ci.org/kgryte/github-get
 
-[coveralls-image]: https://img.shields.io/coveralls/kgryte/github-get/master.svg
-[coveralls-url]: https://coveralls.io/r/kgryte/github-get?branch=master
+[coverage-image]: https://img.shields.io/codecov/c/github/kgryte/github-get/master.svg
+[coverage-url]: https://codecov.io/github/kgryte/github-get?branch=master
 
 [dependencies-image]: http://img.shields.io/david/kgryte/github-get.svg
 [dependencies-url]: https://david-dm.org/kgryte/github-get
@@ -458,3 +323,20 @@ Copyright &copy; 2015. Athan Reines.
 
 [github-issues-image]: http://img.shields.io/github/issues/kgryte/github-get.svg
 [github-issues-url]: https://github.com/kgryte/github-get/issues
+
+[tape]: https://github.com/substack/tape
+[istanbul]: https://github.com/gotwarlost/istanbul
+[testling]: https://ci.testling.com
+
+[json]: http://www.json.org/
+[http-request]: https://nodejs.org/api/http.html#http_http_request_options_callback
+[web-links]: http://tools.ietf.org/html/rfc5988
+[unix-time]: http://en.wikipedia.org/wiki/Unix_time
+
+[github-api]: https://developer.github.com/v3/
+[github-token]: https://github.com/settings/tokens/new
+[github-oauth2]: https://developer.github.com/v3/#oauth2-token-sent-in-a-header
+[github-media]: https://developer.github.com/v3/media/
+[github-user-agent]: https://developer.github.com/v3/#user-agent-required
+[github-pagination]: https://developer.github.com/guides/traversing-with-pagination/
+[github-rate-limit]: https://developer.github.com/v3/rate_limit/

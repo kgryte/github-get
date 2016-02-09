@@ -13,12 +13,16 @@
     }
   ],
   "scripts": {
-    "test": "./node_modules/.bin/mocha",
-    "test-cov": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --dir ./reports/coverage -- -R spec",
-    "coveralls": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --dir ./reports/coveralls/coverage --report lcovonly -- -R spec && cat ./reports/coveralls/coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./reports/coveralls"
+    "test": "if [ \"${TRAVIS}\" ]; then npm run test-ci; else npm run test-local; fi",
+    "test-local": "tape \"./test/*.js\" | tap-spec",
+    "test-ci": "npm run test-local && xvfb-run npm run test-browsers",
+    "test-cov": "istanbul cover --dir ./reports/coverage --report lcov tape -- \"./test/*.js\"",
+    "test-browsers": "browserify -p ./node_modules/proxyquire-universal ./test/*.js | testling | tap-spec",
+    "coverage": "istanbul cover --dir ./reports/codecov/coverage --report lcovonly tape -- \"./test/*.js\" && cat ./reports/codecov/coverage/lcov.info | codecov && rm -rf ./reports/codecov"
   },
   "main": "./lib",
   "bin": {
+    "ghget": "./bin/cli",
     "github-get": "./bin/cli"
   },
   "repository": {
@@ -30,12 +34,13 @@
     "git",
     "github",
     "get",
+    "ghget",
     "request",
+    "fetch",
+    "retrieve",
+    "resolve",
     "api",
     "query",
-    "poll",
-    "repos",
-    "repositories",
     "cli",
     "util",
     "utility"
@@ -44,30 +49,53 @@
     "url": "https://github.com/kgryte/github-get/issues"
   },
   "dependencies": {
-    "minimist": "^1.1.1",
-    "parse-link-header": "^0.2.0",
-    "request": "^2.55.0",
-    "utils-copy": "^1.0.0",
+    "debug": "^2.2.0",
+    "minimist": "^1.2.0",
+    "parse-link-header": "^0.4.1",
+    "update-notifier": "^0.6.0",
+    "utils-copy": "^1.1.0",
+    "utils-json-parse": "^1.0.0",
     "utils-merge2": "^1.0.0",
-    "validate.io-boolean-primitive": "^1.0.0",
     "validate.io-function": "^1.0.2",
-    "validate.io-object": "^1.0.3",
-    "validate.io-positive": "^1.0.0"
+    "validate.io-nonnegative-integer": "^1.0.0",
+    "validate.io-object": "^1.0.4",
+    "validate.io-positive-integer": "^1.0.0",
+    "validate.io-string-primitive": "^1.0.0"
   },
   "devDependencies": {
-    "chai": "2.x.x",
-    "coveralls": "^2.11.1",
-    "istanbul": "^0.3.0",
+    "@kgryte/noop": "^1.0.0",
+    "browserify": "12.x.x",
+    "chai": "3.x.x",
+    "codecov": "1.x.x",
+    "istanbul": "^0.4.1",
     "jshint": "2.x.x",
-    "jshint-stylish": "^1.0.0",
-    "mocha": "2.x.x",
-    "nock": "^1.7.1",
-    "proxyquire": "^1.4.0"
+    "jshint-stylish": "2.x.x",
+    "math-round": "^1.0.0",
+    "proxyquire": "^1.7.4",
+    "proxyquire-universal": "^1.0.8",
+    "proxyquireify": "^3.1.1",
+    "tap-spec": "4.x.x",
+    "tape": "4.x.x",
+    "testling": "1.x.x",
+    "validate.io-array": "^1.0.6"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "http://www.opensource.org/licenses/MIT"
-    }
-  ]
+  "testling": {
+    "files": [
+      "test/*.js"
+    ],
+    "browsers": [
+      "iexplore/6.0..latest",
+      "firefox/3.0..latest",
+      "firefox/nightly",
+      "chrome/4.0..latest",
+      "chrome/canary",
+      "opera/10.0..latest",
+      "opera/next",
+      "safari/4.0..latest",
+      "ipad/6.0..latest",
+      "iphone/6.0..latest",
+      "android-browser/4.2..latest"
+    ]
+  },
+  "license": "MIT"
 }
