@@ -279,7 +279,6 @@ tape( 'for some downstream errors, rate limit information may not be available',
 
 		t.equal( data, null, 'no response data' );
 
-		console.log( info );
 		t.ok( info, 'has rate limit info arg' );
 		t.ok( info.remaining !== info.remaining, 'remaining is NaN' );
 		t.ok( info.reset !== info.reset, 'reset is NaN' );
@@ -404,9 +403,7 @@ tape( 'the function returns paginated results as a flat object array', function 
 	resolve( opts, done );
 
 	function done( error, data, info ) {
-		t.equal( error, null, 'error is null' );
 		t.deepEqual( data, expected, 'expected response data' );
-		t.ok( info, 'returned rate limit info' );
 		t.end();
 	}
 });
