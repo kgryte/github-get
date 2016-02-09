@@ -49,7 +49,7 @@ The `function` accepts the following `options`:
 *	__page__: resource [page][github-pagination]. Default: `1`.
 *	__last_page__: last resource page. If provided, the `function` will use [link headers][web-links] to resolve all pages starting from `page`. Default: `1`.
 *	__per_page__: page size. Default: `100`.
-*	__token__: Github personal [access token][github-token].
+*	__token__: Github [access token][github-token].
 *	__accept__: [media type][github-media]. Default: `'application/vnd.github.moondragon+json'`.
 *	__useragent__: [user agent][github-user-agent] `string`.
 
@@ -174,7 +174,7 @@ To run the example code from the top-level application directory,
 $ node ./examples/index.js
 ```
 
-__Note__: in order to run the example, you will need to obtain a personal access [token][github-token] and modify the `token` option accordingly.
+__Note__: in order to run the example, you will need to obtain an access [token][github-token] and modify the `token` option accordingly.
 
 
 
@@ -203,7 +203,7 @@ Options:
        --hostname host      Hostname. Default: api.github.com.
   -p,  --port port          Port. Default: 443 (https) or 80 (http).
        --pathname pathname  Resource pathname. Default: '/'.
-       --token token        Github personal access token.
+       --token token        Github access token.
        --accept media_type  Media type. Default: application/vnd.github.v3+json.
   -ua, --useragent ua       User-agent.
        --page page          Resource page. Default: 1.
@@ -220,14 +220,14 @@ Options:
 
 ### Examples
 
-Setting the personal access [token][github-token] using the command-line option:
+Setting the access [token][github-token] using the command-line option:
 
 ``` bash
 $ DEBUG=* ghget --token <token> --pathname '/user/repos'
 # => '[{...},{...},...]'
 ```
 
-Setting the personal access [token][github-token] using an environment variable:
+Setting the access [token][github-token] using an environment variable:
 
 ``` bash
 $ DEBUG=* GITHUB_TOKEN=<token> ghget --pathname '/user/repos'
