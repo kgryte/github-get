@@ -118,7 +118,7 @@ var opts = {
 	'token': 'tkjorjk34ek3nj4!'
 };
 
-var get = request.factory( opts, clbk );
+var get = request.factory( opts, onResponse );
 
 get();
 get();
