@@ -76,7 +76,8 @@
     "proxyquireify": "^3.1.1",
     "tap-spec": "4.x.x",
     "tape": "4.x.x",
-    "testling": "1.x.x"
+    "testling": "1.x.x",
+    "validate.io-array": "^1.0.6"
   },
   "testling": {
     "files": [

@@ -4,6 +4,7 @@
 
 var tape = require( 'tape' );
 var round = require( 'math-round' );
+var isArray = require( 'validate.io-array' );
 var proxyquire = require( 'proxyquire' );
 var resolve = require( './../lib/resolve.js' );
 
@@ -25,6 +26,7 @@ function options() {
 	};
 }
 
+// Mock HTTP response headers...
 function headers() {
 	return {
 		'x-ratelimit-limit': 5000,
@@ -33,10 +35,47 @@ function headers() {
 	};
 }
 
+// Mock request with support for calling multiple times with different argument combinations...
 function request( error, headers, body ) {
+	var hincr;
+	var bincr;
+	var eincr;
+	var hidx;
+	var bidx;
+	var eidx;
+	var h;
+	var b;
+	var e;
+
 	if ( arguments.length === 1 ) {
 		return req1;
 	}
+	// Add support for the mock to be called multiple times...
+	if ( !isArray( headers ) ) {
+		h = [ headers ];
+		hincr = false;
+	} else {
+		h = headers;
+		hincr = true;
+	}
+	hidx = 0;
+	if ( !isArray( body ) ) {
+		b = [ body ];
+		bincr = false;
+	} else {
+		b = body;
+		bincr = true;
+	}
+	bidx = 0;
+	if ( !isArray( error ) ) {
+		e = [ error ];
+		eincr = false;
+	} else {
+		e = error;
+		eincr = true;
+	}
+	eidx = 0;
+
 	return req2;
 
 	function req1( opts, clbk ) {
@@ -57,8 +96,41 @@ function request( error, headers, body ) {
 	function req2( opts, clbk ) {
 		setTimeout( onTimeout, 0 );
 		function onTimeout() {
-			var res = {};
+			var headers;
+			var error;
+			var body;
+			var res;
+
+			headers = h[ hidx ];
+			body = b[ bidx ];
+
+			if ( e[ eidx ] instanceof Error ) {
+				error = {
+					'status': 500,
+					'message': e[ eidx ].message
+				};
+			} else {
+				error = e[ eidx ];
+			}
+
+			if ( hincr ) {
+				hidx += 1;
+			}
+			if ( bincr ) {
+				bidx += 1;
+			}
+			if ( eincr ) {
+				eidx += 1;
+			}
+			if (
+				headers === null &&
+				body === null
+			) {
+				return clbk( error );
+			}
+			res = {};
 			res.headers = headers;
+			
 			clbk( error, res, body );
 		}
 	}
@@ -103,10 +175,52 @@ tape( 'if an initial request encounters an application error, the error is retur
 	}
 });
 
-tape( 'if a paginated request encounters an application error, the error is returned to the provided callback with rate limit information', function test( t ) {
-	// e.g., network goes down after initial request
-	t.ok( false );
-	t.end();
+tape( 'if a paginated request encounters an application error (e.g., network goes down after an initial request), the error is returned to the provided callback with rate limit information', function test( t ) {
+	var resolve;
+	var mock;
+	var opts;
+	var e1, e2, e3;
+	var h1, h2, h3;
+	var b1, b2, b3;
+
+	e1 = null;
+	h1 = headers();
+	h1.link = link1;
+	h1[ 'x-ratelimit-remaining' ] = 4999;
+	b1 = {'beep':'boop'};
+
+	e2 = new Error( 'ENOTFOUND' );
+	h2 = null;
+	b2 = null;
+
+	e3 = null;
+	h3 = headers();
+	h3.link = link3;
+	h3[ 'x-ratelimit-remaining' ] = 4998;
+	b3 = {'boop':'beep'};
+
+	mock = request( [e1,e2,e3], [h1,h2,h3], [b1,b2,b3] );
+
+	resolve = proxyquire( './../lib/resolve.js', {
+		'./request.js': mock
+	});
+
+	opts = options();
+	opts.last_page = 'last';
+
+	resolve( opts, done );
+
+	function done( error, data, info ) {
+		t.equal( error.status, 500, '500 status' );
+		t.equal( error.message, e2.message, 'equal message' );
+
+		t.equal( data, null, 'no response data' );
+
+		t.ok( info, 'has ratelimit info' );
+		t.equal( info.remaining, h3[ 'x-ratelimit-remaining' ], 'equal rate limit remaining' );
+
+		t.end();
+	}
 });
 
 tape( 'for some downstream errors, the error is returned to the provided callback with rate limit information', function test( t ) {
