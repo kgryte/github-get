@@ -11,6 +11,13 @@ var resolve = require( './../lib/resolve.js' );
 
 // FUNCTIONS //
 
+/**
+* FUNCTION: options()
+*	Returns mock request options.
+*
+* @private
+* @returns {Object} mock request options
+*/
 function options() {
 	return {
 		'method': 'GET',
@@ -24,58 +31,37 @@ function options() {
 		'accept': 'application/vnd.github.v3+json',
 		'token': 'abcdef123!'
 	};
-}
+} // end FUNCTION options()
 
-// Mock HTTP response headers...
+/**
+* FUNCTION: headers()
+*	Returns mock response headers.
+*
+* @private
+* @returns {Object} mock response headers
+*/
 function headers() {
 	return {
 		'x-ratelimit-limit': 5000,
 		'x-ratelimit-remaining': 4999,
 		'x-ratelimit-reset': round( Date.now()/1000 )
 	};
-}
+} // end FUNCTION headers()
 
-// Mock request with support for calling multiple times with different argument combinations...
+/**
+* FUNCTION: request( error[, headers, body] )
+*	Returns a mock request function.
+*
+* @private
+* @param {Error|Object|Null} error - an error object or null
+* @param {Object|Null} headers - response headers or null
+* @param {Object|Array|Null} body - response body or null
+* @returns {Function} mock request
+*/
 function request( error, headers, body ) {
-	var hincr;
-	var bincr;
-	var eincr;
-	var hidx;
-	var bidx;
-	var eidx;
-	var h;
-	var b;
-	var e;
-
 	if ( arguments.length === 1 ) {
 		return req1;
 	}
-	// Add support for the mock to be called multiple times...
-	if ( !isArray( headers ) ) {
-		h = [ headers ];
-		hincr = false;
-	} else {
-		h = headers;
-		hincr = true;
-	}
-	hidx = 0;
-	if ( !isArray( body ) ) {
-		b = [ body ];
-		bincr = false;
-	} else {
-		b = body;
-		bincr = true;
-	}
-	bidx = 0;
-	if ( !isArray( error ) ) {
-		e = [ error ];
-		eincr = false;
-	} else {
-		e = error;
-		eincr = true;
-	}
-	eidx = 0;
-
 	return req2;
 
 	function req1( opts, clbk ) {
@@ -96,45 +82,45 @@ function request( error, headers, body ) {
 	function req2( opts, clbk ) {
 		setTimeout( onTimeout, 0 );
 		function onTimeout() {
-			var headers;
-			var error;
-			var body;
+			var err;
 			var res;
-
-			headers = h[ hidx ];
-			body = b[ bidx ];
-
-			if ( e[ eidx ] instanceof Error ) {
-				error = {
+			if ( error instanceof Error ) {
+				err = {
 					'status': 500,
-					'message': e[ eidx ].message
+					'message': error.message
 				};
+				return clbk( err );
 			} else {
-				error = e[ eidx ];
-			}
-
-			if ( hincr ) {
-				hidx += 1;
-			}
-			if ( bincr ) {
-				bidx += 1;
-			}
-			if ( eincr ) {
-				eidx += 1;
-			}
-			if (
-				headers === null &&
-				body === null
-			) {
-				return clbk( error );
+				err = error;
 			}
 			res = {};
 			res.headers = headers;
-			
-			clbk( error, res, body );
+			clbk( err, res, body );
 		}
 	}
-}
+} // end FUNCTION request()
+
+/**
+* FUNCTION: multirequest( args )
+*	Returns a mock request function capable of being called multiple times, each time with different arguments.
+*
+* @private
+* @param {Array[]} args - array of argument arrays
+* @returns {Function} request mock capable of being called multiple times
+*/
+function multirequest( args ) {
+	var reqs;
+	var i;
+	reqs = new Array( args.length );
+	for ( i = 0; i < reqs.length; i++ ) {
+		reqs[ i ] = request.apply( null, args[i] );
+	}
+	i = -1;
+	return function multirequest( opts, clbk ) {
+		i += 1;
+		reqs[ i ]( opts, clbk ); 
+	};
+} // end FUNCTION multirequest()
 
 
 // VARIABLES //
@@ -179,30 +165,37 @@ tape( 'if a paginated request encounters an application error (e.g., network goe
 	var resolve;
 	var mock;
 	var opts;
-	var e1, e2, e3;
-	var h1, h2, h3;
-	var b1, b2, b3;
+	var args;
+	var arr;
+
+	args = [];
 
 	// First request call:
-	e1 = null;
-	h1 = headers();
-	h1.link = link1;
-	h1[ 'x-ratelimit-remaining' ] = 4999;
-	b1 = {'beep':'boop'};
+	arr = new Array( 3 );
+	arr[ 0 ] = null;
+	arr[ 1 ] = headers();
+	arr[ 1 ].link = link1;
+	arr[ 1 ][ 'x-ratelimit-remaining' ] = 4999;
+	arr[ 2 ] = {'beep':'boop'};
+	args.push( arr );
 
 	// Second request call:
-	e2 = new Error( 'ENOTFOUND' );
-	h2 = null;
-	b2 = null;
+	arr = new Array( 3 );
+	arr[ 0 ] = new Error( 'ENOTFOUND' );
+	arr[ 1 ] = null;
+	arr[ 2 ] = null;
+	args.push( arr );
 
 	// Third request call:
-	e3 = null;
-	h3 = headers();
-	h3.link = link3;
-	h3[ 'x-ratelimit-remaining' ] = 4998;
-	b3 = {'boop':'beep'};
+	arr = new Array( 3 );
+	arr[ 0 ] = null;
+	arr[ 1 ] = headers();
+	arr[ 1 ].link = link3;
+	arr[ 1 ][ 'x-ratelimit-remaining' ] = 4998;
+	arr[ 2 ] = {'boop':'beep'};
+	args.push( arr );
 
-	mock = request( [e1,e2,e3], [h1,h2,h3], [b1,b2,b3] );
+	mock = multirequest( args );
 
 	resolve = proxyquire( './../lib/resolve.js', {
 		'./request.js': mock
@@ -217,12 +210,12 @@ tape( 'if a paginated request encounters an application error (e.g., network goe
 
 	function done( error, data, info ) {
 		t.equal( error.status, 500, '500 status' );
-		t.equal( error.message, e2.message, 'equal message' );
+		t.equal( error.message, args[1][0].message, 'equal message' );
 
 		t.equal( data, null, 'no response data' );
 
 		t.ok( info, 'has ratelimit info' );
-		t.equal( info.remaining, h3[ 'x-ratelimit-remaining' ], 'equal rate limit remaining' );
+		t.equal( info.remaining, args[2][1][ 'x-ratelimit-remaining' ], 'equal rate limit remaining' );
 
 		t.end();
 	}
