@@ -205,7 +205,7 @@ Options:
        --pathname pathname  Resource pathname. Default: '/'.
        --token token        Github access token.
        --accept media_type  Media type. Default: application/vnd.github.v3+json.
-  -ua, --useragent ua       User-agent.
+  -ua, --useragent ua       User agent.
        --page page          Resource page. Default: 1.
        --last_page page     Last resource page to resolve. Default: 1.
        --per_page size      Page size. Default: 100.
