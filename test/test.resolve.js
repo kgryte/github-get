@@ -255,9 +255,38 @@ tape( 'for some downstream errors, the error is returned to the provided callbac
 });
 
 tape( 'for some downstream errors, rate limit information may not be available', function test( t ) {
-	// e.g., corrupted response, Github service interruption, etc, where rate limit info headers are not set. Values should be NaN.
-	t.ok( false );
-	t.end();
+	// e.g., corrupted response, Github service interruption, etc, where rate limit info headers are not set. Rate limit info values should be NaN.
+	var resolve;
+	var mock;
+	var err;
+
+	err = {
+		'status': 503,
+		'message': 'service down for maintenance'
+	};
+
+	mock = request( err, {}, null );
+
+	resolve = proxyquire( './../lib/resolve.js', {
+		'./request.js': mock
+	});
+
+	resolve( options(), done );
+
+	function done( error, data, info ) {
+		t.equal( error.status, err.status, 'equal status' );
+		t.equal( error.message, err.message, 'equal message' );
+
+		t.equal( data, null, 'no response data' );
+
+		console.log( info );
+		t.ok( info, 'has rate limit info arg' );
+		t.ok( info.remaining !== info.remaining, 'remaining is NaN' );
+		t.ok( info.reset !== info.reset, 'reset is NaN' );
+		t.ok( info.limit !== info.limit, 'limit is NaN' );
+
+		t.end();
+	}
 });
 
 tape( 'the function supports basic (non-paginated) requests', function test( t ) {
