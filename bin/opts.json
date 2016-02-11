@@ -9,7 +9,8 @@
 		"useragent",
 		"page",
 		"last_page",
-		"per_page"
+		"per_page",
+		"query"
 	],
 	"boolean": [
 		"help",
@@ -27,6 +28,9 @@
 		],
 		"useragent": [
 			"ua"
+		],
+		"query": [
+			"qs"
 		]
 	}
 }

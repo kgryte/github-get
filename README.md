@@ -49,6 +49,7 @@ The `function` accepts the following `options`:
 *	__page__: resource [page][github-pagination]. Default: `1`.
 *	__last_page__: last resource page. If provided, the `function` will use [link headers][web-links] to resolve all pages starting from `page`. Default: `1`.
 *	__per_page__: page size. Default: `100`.
+*	__query__: params portion of a query `string`; e.g., `beep=boop&a=b`. This should __not__ include `page` or `per_page` query params. Default: `''`.
 *	__token__: Github [access token][github-token].
 *	__accept__: [media type][github-media]. Default: `'application/vnd.github.moondragon+json'`.
 *	__useragent__: [user agent][github-user-agent] `string`.
@@ -209,6 +210,7 @@ Options:
        --page page          Resource page. Default: 1.
        --last_page page     Last resource page to resolve. Default: 1.
        --per_page size      Page size. Default: 100.
+  -qs, --query querystring  Params portion of a query string. 
 ```
 
 ### Notes
