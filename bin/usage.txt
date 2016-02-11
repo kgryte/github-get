@@ -14,5 +14,6 @@ Options:
   -ua, --useragent ua       User agent.
        --page page          Resource page. Default: 1.
        --last_page page     Last resource page to resolve. Default: 1.
-       --per_page size      Page size. Default: 100.   
+       --per_page size      Page size. Default: 100.
+  -qs, --query querystring  Params portion of a query string. 
 

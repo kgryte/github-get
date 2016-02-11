@@ -242,6 +242,31 @@ tape( 'if provided a `per_page` option which is not a positive integer, the func
 	t.end();
 });
 
+tape( 'if provided a `query` option which is not a primitive string, the function returns a type error', function test( t ) {
+	var values;
+	var err;
+	var i;
+
+	values = [
+		5,
+		NaN,
+		null,
+		undefined,
+		true,
+		[],
+		{},
+		function(){}
+	];
+
+	for ( i = 0; i < values.length; i++ ) {
+		err = validate( {}, {
+			'query': values[i]
+		});
+		t.ok( err instanceof TypeError, 'returns type error when provided ' + values[i] );
+	}
+	t.end();
+});
+
 tape( 'if provided a `token` option which is not a primitive string, the function returns a type error', function test( t ) {
 	var values;
 	var err;
@@ -328,6 +353,7 @@ tape( 'the function returns `null` if all options are valid', function test( t )
 		'page': 2,
 		'last_page': 5,
 		'per_page': 30,
+		'query': 'beep=boop',
 		'token': 'abcdefg',
 		'accept': 'beepboop',
 		'useragent': 'beeper-booper'
