@@ -28,7 +28,7 @@ tape( 'if unable to query an endpoint, an error is returned to a provided callba
 	var opts;
 
 	opts = getOpts();
-	opts.protocol = 'http';
+	opts.protocol = 'http:';
 
 	mock = http( new Error( 'beep' ) );
 
@@ -52,7 +52,7 @@ tape( 'if an endpoint returns a status code other than 200, an error containing 
 	var opts;
 
 	opts = getOpts();
-	opts.protocol = 'http';
+	opts.protocol = 'http:';
 
 	mock = http( null, 404 );
 
@@ -80,7 +80,7 @@ tape( 'if an endpoint returns an invalid JSON response, an error with a status c
 	var opts;
 
 	opts = getOpts();
-	opts.protocol = 'http';
+	opts.protocol = 'http:';
 
 	mock = http( null, 200 );
 
@@ -113,7 +113,7 @@ tape( 'if a query is successful, a JSON object is returned to a provided callbac
 	var opts;
 
 	opts = getOpts();
-	opts.protocol = 'http';
+	opts.protocol = 'http:';
 
 	mock = http( null, 200 );
 
@@ -143,7 +143,7 @@ tape( 'HTTPS is supported', function test( t ) {
 	var opts;
 
 	opts = getOpts();
-	opts.protocol = 'https';
+	opts.protocol = 'https:';
 
 	mock = http( null, 200 );
 
