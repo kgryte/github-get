@@ -125,7 +125,9 @@ tape( 'if a query is successful, a JSON object is returned to a provided callbac
 
 	function clbk( error, response, body ) {
 		if ( error ) {
-			throw error;
+			t.ok( false, error.message );
+			t.end();
+			return;
 		}
 		t.equal( typeof response, 'object', 'second argument is an object' );
 
@@ -155,7 +157,9 @@ tape( 'HTTPS is supported', function test( t ) {
 
 	function clbk( error, response, body ) {
 		if ( error ) {
-			throw error;
+			t.ok( false, error.message );
+			t.end();
+			return;
 		}
 		t.equal( typeof response, 'object', 'second argument is an object' );
 
